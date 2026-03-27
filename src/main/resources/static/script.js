@@ -1,4 +1,7 @@
 const itemForm = document.getElementById("itemForm");
+const API_BASE_URL = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL
+    ? window.APP_CONFIG.API_BASE_URL
+    : "").replace(/\/$/, "");
 const formMessage = document.getElementById("formMessage");
 const contactForm = document.getElementById("contactForm");
 const contactMessageStatus = document.getElementById("contactMessageStatus");
@@ -63,7 +66,7 @@ registerForm.addEventListener("submit", async function (event) {
     };
 
     try {
-        const response = await fetch("/api/auth/register", {
+        const response = await fetch(API_BASE_URL + "/api/auth/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -89,7 +92,7 @@ verifyForm.addEventListener("submit", async function (event) {
     };
 
     try {
-        const response = await fetch("/api/auth/verify-otp", {
+        const response = await fetch(API_BASE_URL + "/api/auth/verify-otp", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -114,7 +117,7 @@ loginForm.addEventListener("submit", async function (event) {
     };
 
     try {
-        const response = await fetch("/api/auth/login", {
+        const response = await fetch(API_BASE_URL + "/api/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -149,7 +152,7 @@ if (contactForm) {
         };
 
         try {
-            const response = await fetch("/api/contact", {
+            const response = await fetch(API_BASE_URL + "/api/contact", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -188,7 +191,7 @@ itemForm.addEventListener("submit", async function (event) {
     }
 
     try {
-        const response = await fetch("/api/items", {
+        const response = await fetch(API_BASE_URL + "/api/items", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -308,7 +311,7 @@ showLoginTab.addEventListener("click", function () { switchView("login"); });
 showVerifyTab.addEventListener("click", function () { switchView("verify"); });
 
 async function loadItems(type) {
-    let url = "/api/items";
+    let url = API_BASE_URL + "/api/items";
     if (type) {
         url += "?type=" + encodeURIComponent(type);
     }
@@ -365,7 +368,7 @@ async function getItemById(id) {
     }
 
     try {
-        const response = await fetch("/api/items/" + id);
+        const response = await fetch(API_BASE_URL + "/api/items/" + id);
         if (!response.ok) {
             detailCard.classList.remove("hidden");
             detailCard.innerHTML = "<p>Item not found.</p>";
@@ -407,7 +410,7 @@ async function deleteItem(id) {
     }
 
     try {
-        const response = await fetch("/api/items/" + id, {
+        const response = await fetch(API_BASE_URL + "/api/items/" + id, {
             method: "DELETE",
             headers: {
                 "Authorization": "Bearer " + authToken

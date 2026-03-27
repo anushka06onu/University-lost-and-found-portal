@@ -2,6 +2,9 @@ const contactForm = document.getElementById("contactForm");
 const contactMessageStatus = document.getElementById("contactMessageStatus");
 const themeToggleBtn = document.getElementById("themeToggleBtn");
 const themeToggleText = document.getElementById("themeToggleText");
+const API_BASE_URL = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL
+    ? window.APP_CONFIG.API_BASE_URL
+    : "").replace(/\/$/, "");
 
 let currentTheme = localStorage.getItem("lf_theme") || getPreferredTheme();
 
@@ -21,7 +24,7 @@ contactForm.addEventListener("submit", async function (event) {
     };
 
     try {
-        const response = await fetch("/api/contact", {
+        const response = await fetch(API_BASE_URL + "/api/contact", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)

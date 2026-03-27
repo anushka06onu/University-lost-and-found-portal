@@ -1,0 +1,5 @@
+{
+  "outputDirectory": "src/main/resources/static",
+  "cleanUrls": true,
+  "trailingSlash": false
+}

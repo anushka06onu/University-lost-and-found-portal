@@ -94,6 +94,7 @@ textarea {
     align-items: center;
     justify-content: space-between;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
 .brand {
@@ -650,6 +651,7 @@ body[data-theme="dark"] .panel-card.focus {
 
 .toolbar input {
     flex: 1;
+    min-width: 220px;
 }
 
 .toolbar input:focus,
@@ -832,6 +834,8 @@ textarea {
 .modal-card {
     position: relative;
     width: min(640px, calc(100% - 24px));
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
     padding: 28px;
     border-radius: 26px;
 }
@@ -1053,16 +1057,16 @@ textarea {
     .footer-columns {
         grid-template-columns: 1fr 1fr;
     }
-
-    .items-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 @media (max-width: 860px) {
     .nav-wrap {
         padding: 14px 0;
-        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .brand {
+        width: 100%;
         justify-content: center;
     }
 
@@ -1088,6 +1092,10 @@ textarea {
         align-items: stretch;
     }
 
+    .filter-group {
+        flex-wrap: wrap;
+    }
+
     .section-head,
     .records-controls,
     .sort-group {
@@ -1096,6 +1104,15 @@ textarea {
 
     .records-controls {
         justify-content: start;
+    }
+
+    .sort-group {
+        flex-direction: column;
+    }
+
+    .sort-group select,
+    .footer-contact-link {
+        width: 100%;
     }
 
     .hero-metrics,
@@ -1114,5 +1131,70 @@ textarea {
     .surface,
     .modal-card {
         padding: 24px;
+    }
+}
+
+@media (max-width: 700px) {
+    .nav-wrap,
+    .page-shell,
+    .footer-shell {
+        width: min(100%, calc(100% - 24px));
+    }
+
+    .nav-actions,
+    .auth-tabs,
+    .actions {
+        width: 100%;
+    }
+
+    .nav-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .theme-toggle,
+    .nav-btn,
+    .cta,
+    .filter-btn,
+    .action-btn,
+    .nav-link-btn,
+    .nav-link-anchor {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .hero-note {
+        grid-template-columns: 1fr;
+    }
+
+    .note-index {
+        width: 40px;
+        height: 40px;
+    }
+
+    .hero-metrics,
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .item-top,
+    .actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .footer-brand {
+        flex-direction: column;
+    }
+
+    .footer-contact {
+        padding: 18px;
+    }
+
+    .modal-card {
+        width: min(100%, calc(100% - 16px));
+        padding: 20px;
+        border-radius: 22px;
     }
 }

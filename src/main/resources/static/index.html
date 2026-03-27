@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Lost and Found Portal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="navbar">
+    <div class="nav-wrap">
+        <a class="brand" href="#home">
+            <span class="brand-mark">DIU</span>
+            <span class="brand-text">
+                <strong>Lost & Found</strong>
+                <small>Official Item Reporting Portal</small>
+            </span>
+        </a>
+
+        <nav class="nav-links">
+            <button type="button" class="nav-link-btn" data-scroll-target="home">Home</button>
+            <button type="button" class="nav-link-btn" data-scroll-target="reporting">Guidelines</button>
+            <button type="button" class="nav-link-btn" data-scroll-target="items">Records</button>
+            <a class="nav-link-anchor" href="/contact.html">Contact Us</a>
+        </nav>
+
+        <div class="nav-actions">
+            <button class="theme-toggle" id="themeToggleBtn" type="button" aria-label="Toggle theme">
+                <span class="theme-dot"></span>
+                <span id="themeToggleText">Light</span>
+            </button>
+            <button class="nav-btn ghost" id="openRegisterBtn" type="button">Register</button>
+            <button class="nav-btn ghost" id="openLoginBtn" type="button">Login</button>
+            <button class="nav-btn primary hidden" id="openPostBtn" type="button">Report Item</button>
+            <button class="nav-btn ghost hidden" id="logoutBtn" type="button">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="page-shell">
+    <section class="hero" id="home">
+        <div class="hero-copy reveal">
+            <p class="section-tag">Daffodil International University</p>
+            <h1>University Lost and Found Portal</h1>
+            <p class="hero-text">Verified student access for lost and found reporting.</p>
+
+            <div class="hero-actions">
+                <button class="cta primary" id="heroViewRecordsBtn" type="button">View Records</button>
+                <button class="cta secondary" id="heroRegisterBtn" type="button">Student Access</button>
+            </div>
+
+            <div class="hero-notes">
+                <div class="hero-note">
+                    <span class="note-index">01</span>
+                    <div>
+                        <strong>Clear item records</strong>
+                        <p>Short titles, exact locations, and useful contact details matter most.</p>
+                    </div>
+                </div>
+                <div class="hero-note">
+                    <span class="note-index">02</span>
+                    <div>
+                        <strong>Verified student posting</strong>
+                        <p>Only registered DIU students can publish lost or found notices.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-panel reveal">
+            <div class="panel-card focus panel-summary">
+                <span class="panel-label">Portal Summary</span>
+                <h3>Lost and found should be recorded with clarity, not confusion.</h3>
+                <p>Browse current records, check the correct category, and report only the information that helps identify an item quickly.</p>
+            </div>
+            <div class="hero-metrics">
+                <div class="metric-card">
+                    <span class="metric-label">Published Records</span>
+                    <strong id="itemCount">0</strong>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Current View</span>
+                    <strong id="activeFilter">All</strong>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Access</span>
+                    <strong id="userStatus">Guest</strong>
+                </div>
+            </div>
+            <div class="panel-card muted-panel">
+                <span class="panel-label">Student Access</span>
+                <p>Use a valid <strong>@diu.edu.bd</strong> email to register, verify OTP, and submit a record.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="two-column" id="reporting">
+        <section class="surface reveal">
+            <div class="section-head">
+                <div>
+                    <p class="section-tag">Reporting Guide</p>
+                    <h2>Required information for each submission</h2>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <article class="info-box">
+                    <h3>Item title</h3>
+                    <p>Use the actual item name such as student ID card, wallet, calculator, phone, or keys.</p>
+                </article>
+                <article class="info-box">
+                    <h3>Location</h3>
+                    <p>Mention the last known or found location as precisely as possible, such as library gate or lab room.</p>
+                </article>
+                <article class="info-box">
+                    <h3>Description</h3>
+                    <p>Include visible identifying details only and avoid unnecessary text.</p>
+                </article>
+                <article class="info-box">
+                    <h3>Contact</h3>
+                    <p>Provide a reliable phone number or email so the item can be returned without delay.</p>
+                </article>
+            </div>
+        </section>
+
+        <aside class="surface reveal" id="student">
+            <p class="section-tag">Student Access</p>
+            <h2>Posting is limited to verified DIU students</h2>
+            <p class="section-text">
+                Posting is limited to DIU students. Registration requires a valid DIU domain email,
+                OTP verification, and login before a record can be submitted.
+            </p>
+
+            <div class="status-panel">
+                <span class="status-indicator"></span>
+                <span id="studentStateText">Guest mode active. Login required for posting.</span>
+            </div>
+
+            <button class="cta primary full-width" id="studentAccessBtn" type="button">Open Student Access</button>
+        </aside>
+    </section>
+
+    <section class="content-grid full-records" id="items">
+        <section class="surface reveal">
+            <div class="section-head">
+                <div>
+                    <p class="section-tag">Item Records</p>
+                    <h2>Current lost and found records</h2>
+                </div>
+                <div class="records-controls">
+                    <div class="filter-group">
+                        <button class="filter-btn active" data-type="">All</button>
+                        <button class="filter-btn" data-type="lost">Lost</button>
+                        <button class="filter-btn" data-type="found">Found</button>
+                    </div>
+                    <div class="sort-group">
+                        <label for="sortOrder">Sort</label>
+                        <select id="sortOrder">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="title">Title A-Z</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <input id="itemIdInput" type="number" placeholder="Search by record id">
+                <button class="nav-btn accent" id="searchByIdBtn" type="button">Find</button>
+                <button class="nav-btn ghost" id="refreshBtn" type="button">Refresh</button>
+            </div>
+
+            <div class="detail-card hidden" id="detailCard"></div>
+            <div class="items-grid" id="itemsContainer"></div>
+        </section>
+    </section>
+</main>
+
+<footer class="site-footer" id="siteFooter">
+    <div class="footer-shell">
+        <div class="footer-info">
+            <div class="footer-brand">
+                <span class="brand-mark footer-mark">DIU</span>
+                <div>
+                    <strong>University Lost and Found Portal</strong>
+                    <p>Official campus portal for maintaining clear lost and found records.</p>
+                </div>
+            </div>
+
+            <div class="footer-columns">
+                <div class="footer-column">
+                    <span class="footer-title">Navigation</span>
+                    <button type="button" class="footer-link-btn" data-scroll-target="home">Home</button>
+                    <button type="button" class="footer-link-btn" data-scroll-target="reporting">Guidelines</button>
+                    <button type="button" class="footer-link-btn" data-scroll-target="items">Records</button>
+                    <a class="footer-link-anchor" href="/contact.html">Contact Us</a>
+                </div>
+                <div class="footer-column">
+                    <span class="footer-title">Support</span>
+                    <span>Department of CSE, DIU</span>
+                    <span>Daffodil Smart City, Ashulia</span>
+                    <span>support@diu.edu.bd</span>
+                </div>
+            </div>
+
+            <div class="footer-credit">
+                <span>Developed by</span>
+                <a href="https://fatehahossainanushka.vercel.app/" target="_blank" rel="noreferrer">Fateha Hossain Anushka</a>
+            </div>
+        </div>
+
+        <section class="footer-contact">
+            <p class="section-tag">Contact Desk</p>
+            <h2>Need support?</h2>
+            <p class="section-text">
+                Open the contact page to send a message to the desk for follow-up support or manual review.
+            </p>
+            <a class="cta primary inline-cta-link footer-contact-link" href="/contact.html">Open Contact Desk</a>
+        </section>
+    </div>
+</footer>
+
+<div class="modal hidden" id="authModal">
+    <div class="modal-backdrop" id="closeAuthBackdrop"></div>
+    <div class="modal-card">
+        <button class="close-modal" id="closeAuthBtn" type="button">×</button>
+        <div class="auth-tabs">
+            <button class="filter-btn active" id="showRegisterTab" type="button">Register</button>
+            <button class="filter-btn" id="showLoginTab" type="button">Login</button>
+            <button class="filter-btn" id="showVerifyTab" type="button">Verify OTP</button>
+        </div>
+
+        <div class="modal-view" id="registerView">
+            <p class="section-tag">Student Register</p>
+            <h2>Create your DIU account</h2>
+            <form id="registerForm" class="stack-form">
+                <div class="field">
+                    <label for="registerName">Full Name</label>
+                    <input id="registerName" type="text" required>
+                </div>
+                <div class="field">
+                    <label for="registerEmail">DIU Email</label>
+                    <input id="registerEmail" type="email" placeholder="name@diu.edu.bd" required>
+                </div>
+                <div class="field">
+                    <label for="registerPassword">Password</label>
+                    <input id="registerPassword" type="password" required>
+                </div>
+                <button class="cta primary full-width" type="submit">Register</button>
+            </form>
+            <p class="status-message" id="registerMessage"></p>
+        </div>
+
+        <div class="modal-view hidden" id="verifyView">
+            <p class="section-tag">Verification</p>
+            <h2>Complete OTP verification</h2>
+            <form id="verifyForm" class="stack-form">
+                <div class="field">
+                    <label for="verifyEmail">DIU Email</label>
+                    <input id="verifyEmail" type="email" required>
+                </div>
+                <div class="field">
+                    <label for="verifyOtp">OTP</label>
+                    <input id="verifyOtp" type="text" maxlength="6" required>
+                </div>
+                <button class="cta primary full-width" type="submit">Verify</button>
+            </form>
+            <p class="status-message" id="verifyMessage"></p>
+        </div>
+
+        <div class="modal-view hidden" id="loginView">
+            <p class="section-tag">Student Login</p>
+            <h2>Login to submit records</h2>
+            <form id="loginForm" class="stack-form">
+                <div class="field">
+                    <label for="loginEmail">DIU Email</label>
+                    <input id="loginEmail" type="email" required>
+                </div>
+                <div class="field">
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" type="password" required>
+                </div>
+                <button class="cta primary full-width" type="submit">Login</button>
+            </form>
+            <p class="status-message" id="loginMessage"></p>
+        </div>
+    </div>
+</div>
+
+<div class="modal hidden" id="postModal">
+    <div class="modal-backdrop" id="closePostBackdrop"></div>
+    <div class="modal-card">
+        <button class="close-modal" id="closePostBtn" type="button">×</button>
+        <div class="modal-view">
+            <p class="section-tag">Report Item</p>
+            <h2>Create a lost or found record</h2>
+            <form id="itemForm" class="stack-form">
+                <div class="field-grid">
+                    <div class="field">
+                        <label for="title">Title</label>
+                        <input id="title" name="title" type="text" required>
+                    </div>
+                    <div class="field">
+                        <label for="type">Type</label>
+                        <select id="type" name="type" required>
+                            <option value="lost">Lost</option>
+                            <option value="found">Found</option>
+                        </select>
+                    </div>
+                    <div class="field full">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="4" required></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="location">Location</label>
+                        <input id="location" name="location" type="text" required>
+                    </div>
+                    <div class="field">
+                        <label for="contactInfo">Contact Info</label>
+                        <input id="contactInfo" name="contactInfo" type="text" placeholder="Optional">
+                    </div>
+                    <div class="field full">
+                        <label for="imageUrl">Cloudinary Image Link</label>
+                        <input id="imageUrl" name="imageUrl" type="url" placeholder="https://res.cloudinary.com/...">
+                    </div>
+                </div>
+                <button class="cta primary full-width" type="submit">Publish Report</button>
+            </form>
+            <p class="status-message" id="formMessage"></p>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

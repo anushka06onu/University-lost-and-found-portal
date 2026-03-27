@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Desk | University Lost and Found Portal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="navbar">
+    <div class="nav-wrap">
+        <a class="brand" href="/">
+            <span class="brand-mark">DIU</span>
+            <span class="brand-text">
+                <strong>Lost & Found</strong>
+                <small>Official Item Reporting Portal</small>
+            </span>
+        </a>
+
+        <nav class="nav-links">
+            <a class="nav-link-anchor" href="/">Home</a>
+            <a class="nav-link-anchor" href="/contact.html">Contact Us</a>
+        </nav>
+
+        <div class="nav-actions">
+            <button class="theme-toggle" id="themeToggleBtn" type="button" aria-label="Toggle theme">
+                <span class="theme-dot"></span>
+                <span id="themeToggleText">Light</span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<main class="page-shell contact-page-shell">
+    <section class="contact-page-layout">
+        <section class="surface reveal contact-intro">
+            <p class="section-tag">Contact Desk</p>
+            <h1>Contact the University Lost and Found Desk</h1>
+            <p class="hero-text">
+                Use this page if a reported item needs manual follow-up, desk review, or additional communication.
+            </p>
+
+            <div class="hero-notes compact-notes">
+                <div class="hero-note">
+                    <span class="note-index">01</span>
+                    <div>
+                        <strong>For report follow-up</strong>
+                        <p>Use the desk when an existing record needs review or a correction.</p>
+                    </div>
+                </div>
+                <div class="hero-note">
+                    <span class="note-index">02</span>
+                    <div>
+                        <strong>Provide exact details</strong>
+                        <p>Mention the record title, issue, and your contact details clearly.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="surface reveal contact-form-panel">
+            <p class="section-tag">Send Message</p>
+            <h2>Write to the support desk</h2>
+            <form id="contactForm" class="stack-form">
+                <div class="field-grid">
+                    <div class="field">
+                        <label for="contactName">Full Name</label>
+                        <input id="contactName" type="text" required>
+                    </div>
+                    <div class="field">
+                        <label for="contactEmail">Email</label>
+                        <input id="contactEmail" type="email" required>
+                    </div>
+                    <div class="field full">
+                        <label for="contactSubject">Subject</label>
+                        <input id="contactSubject" type="text" required>
+                    </div>
+                    <div class="field full">
+                        <label for="contactMessage">Message</label>
+                        <textarea id="contactMessage" rows="7" required></textarea>
+                    </div>
+                </div>
+                <button class="cta primary full-width" type="submit">Send Message</button>
+                <p class="status-message" id="contactMessageStatus"></p>
+            </form>
+        </section>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="footer-shell">
+        <div class="footer-info">
+            <div class="footer-brand">
+                <span class="brand-mark footer-mark">DIU</span>
+                <div>
+                    <strong>University Lost and Found Portal</strong>
+                    <p>Official campus portal for maintaining clear lost and found records.</p>
+                </div>
+            </div>
+
+            <div class="footer-columns">
+                <div class="footer-column">
+                    <span class="footer-title">Navigation</span>
+                    <a class="footer-link-anchor" href="/">Home</a>
+                    <a class="footer-link-anchor" href="/contact.html">Contact Us</a>
+                </div>
+                <div class="footer-column">
+                    <span class="footer-title">Support</span>
+                    <span>Department of CSE, DIU</span>
+                    <span>Daffodil Smart City, Ashulia</span>
+                    <span>support@diu.edu.bd</span>
+                </div>
+            </div>
+
+            <div class="footer-credit">
+                <span>Developed by</span>
+                <a href="https://fatehahossainanushka.vercel.app/" target="_blank" rel="noreferrer">Fateha Hossain Anushka</a>
+            </div>
+        </div>
+
+        <section class="footer-contact compact-footer-contact">
+            <p class="section-tag">Desk Hours</p>
+            <h2>Support Desk</h2>
+            <p class="section-text">
+                For record issues, missing details, or follow-up requests regarding a reported item.
+            </p>
+        </section>
+    </div>
+</footer>
+
+<script src="contact.js"></script>
+</body>
+</html>

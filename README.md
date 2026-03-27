@@ -64,6 +64,31 @@ Then open:
 - `http://localhost:8080`
 - `http://localhost:8080/contact.html`
 
+## Deploy on Render
+
+This project is prepared for Render deployment with the included `render.yaml` file.
+
+On Render, create a new Web Service from this GitHub repository and set these environment variables:
+
+- `DB_URL`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+- `MAIL_USERNAME` optional
+- `MAIL_PASSWORD` optional
+- `MAIL_FROM` optional
+
+Build command:
+
+```bash
+./mvnw clean package -DskipTests
+```
+
+Start command:
+
+```bash
+java -jar target/university-lost-and-found-portal-0.0.1-SNAPSHOT.jar
+```
+
 ## Note
 
 - OTP is fixed for development

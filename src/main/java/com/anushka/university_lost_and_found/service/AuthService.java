@@ -47,13 +47,17 @@ public class AuthService {
         user.setPassword(hashPassword(password));
         user.setVerified(false);
         user.setSessionToken(null);
-        user.setOtpCode("123456");
+        user.setOtpCode(generateRandomOtp());
         user.setOtpExpiry(LocalDateTime.now().plusMinutes(otpExpiryMinutes));
         studentUserRepository.save(user);
 
-        response.put("message", "Registration started. Use OTP 123456 to verify.");
+        response.put("message", "Registration started. Please check your email for the OTP.");
         response.put("devOtp", user.getOtpCode());
         return response;
+    }
+
+    private String generateRandomOtp() {
+        return String.valueOf((int) (Math.random() * 900000) + 100000);
     }
 
     public Map<String, String> verifyOtp(String email, String otp) {
@@ -114,7 +118,66 @@ public class AuthService {
         response.put("token", token);
         response.put("email", user.getEmail());
         response.put("fullName", user.getFullName());
+        response.put("isAdmin", user.isAdmin());
         return response;
+    }
+
+    public Map<String, Object> updateProfile(String authHeader, String fullName, String profilePictureUrl) {
+        StudentUser user = getUserFromToken(authHeader);
+        if (fullName != null) user.setFullName(fullName);
+        if (profilePictureUrl != null) user.setProfilePictureUrl(profilePictureUrl);
+        studentUserRepository.save(user);
+        
+        return Map.of(
+            "message", "Profile updated successfully.",
+            "fullName", user.getFullName(),
+            "profilePictureUrl", user.getProfilePictureUrl() != null ? user.getProfilePictureUrl() : "",
+            "isAdmin", user.isAdmin()
+        );
+    }
+
+    public Map<String, Object> changePassword(String authHeader, String oldPassword, String newPassword) {
+        StudentUser user = getUserFromToken(authHeader);
+        
+        if (!hashPassword(oldPassword).equals(user.getPassword())) {
+            throw new RuntimeException("Old password does not match.");
+        }
+        
+        user.setPassword(hashPassword(newPassword));
+        studentUserRepository.save(user);
+        
+        return Map.of("message", "Password changed successfully.");
+    }
+
+    public Map<String, String> forgotPassword(String email) {
+        StudentUser user = studentUserRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+        
+        String otp = generateRandomOtp();
+        user.setOtpCode(otp);
+        user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
+        studentUserRepository.save(user);
+        
+        // In a real app, send the email here
+        System.out.println("Forgot Password OTP for " + email + ": " + otp);
+        
+        return Map.of("message", "OTP sent to your email.", "devOtp", otp);
+    }
+
+    public Map<String, String> resetPassword(String email, String otp, String newPassword) {
+        StudentUser user = studentUserRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+        
+        if (user.getOtpCode() == null || !user.getOtpCode().equals(otp) || user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Invalid or expired OTP.");
+        }
+        
+        user.setPassword(hashPassword(newPassword));
+        user.setOtpCode(null);
+        user.setOtpExpiry(null);
+        studentUserRepository.save(user);
+        
+        return Map.of("message", "Password reset successfully.");
     }
 
     public StudentUser getUserFromToken(String authHeader) {

@@ -20,6 +20,8 @@ public class StudentUser {
     private String otpCode;
     private LocalDateTime otpExpiry;
     private String sessionToken;
+    private String profilePictureUrl;
+    private boolean isAdmin;
 
     public StudentUser() {
     }
@@ -86,5 +88,21 @@ public class StudentUser {
 
     public void setSessionToken(String sessionToken) {
         this.sessionToken = sessionToken;
+    }
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }

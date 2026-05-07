@@ -1,20 +1,24 @@
-const contactForm = document.getElementById("contactForm");
-const contactMessageStatus = document.getElementById("contactMessageStatus");
-const themeToggleBtn = document.getElementById("themeToggleBtn");
-const themeToggleText = document.getElementById("themeToggleText");
-const API_BASE_URL = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL
-    ? window.APP_CONFIG.API_BASE_URL
-    : "").replace(/\/$/, "");
+// Official Support Logic
+const API_BASE_URL = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL ? window.APP_CONFIG.API_BASE_URL : "").replace(/\/$/, "");
 
-let currentTheme = localStorage.getItem("lf_theme") || getPreferredTheme();
+// Elements
+const toast = document.getElementById("toast");
+const toastMsg = document.getElementById("toastMsg");
 
-themeToggleBtn.addEventListener("click", function () {
-    currentTheme = currentTheme === "dark" ? "light" : "dark";
-    applyTheme(currentTheme);
-});
+const showToast = (msg, isError = false) => {
+    if (!toast) return;
+    toastMsg.textContent = msg;
+    toast.querySelector('.toast-content').style.borderColor = isError ? '#f43f5e' : 'var(--primary)';
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 3000);
+};
 
-contactForm.addEventListener("submit", async function (event) {
-    event.preventDefault();
+document.getElementById("contactForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector("button");
+    const originalText = btn.textContent;
+    btn.textContent = "Transmitting Data...";
+    btn.disabled = true;
 
     const payload = {
         name: document.getElementById("contactName").value,
@@ -24,29 +28,21 @@ contactForm.addEventListener("submit", async function (event) {
     };
 
     try {
-        const response = await fetch(API_BASE_URL + "/api/contact", {
+        const r = await fetch(`${API_BASE_URL}/api/contact`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
-        const data = await response.json();
-        contactMessageStatus.textContent = data.message || "Message sent.";
-        if (response.ok) {
-            contactForm.reset();
+        if (r.ok) {
+            showToast("✓ Inquiry transmitted to support database");
+            e.target.reset();
+        } else {
+            showToast("Transmission failed. Database offline.", true);
         }
     } catch (error) {
-        contactMessageStatus.textContent = "Could not send your message right now.";
+        showToast("Network encryption error. Retry inquiry.", true);
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
     }
 });
-
-function applyTheme(theme) {
-    document.body.setAttribute("data-theme", theme);
-    localStorage.setItem("lf_theme", theme);
-    themeToggleText.textContent = theme === "dark" ? "Light" : "Dark";
-}
-
-function getPreferredTheme() {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-applyTheme(currentTheme);

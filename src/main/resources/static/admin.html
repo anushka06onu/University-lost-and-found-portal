@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | DIU Lost & Found</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body data-theme="light">
+    <header class="navbar">
+        <div class="nav-wrap">
+            <a class="brand" href="/">
+                <div class="brand-logo">DIU</div>
+                <div class="brand-text">
+                    <strong>Lost & Found</strong>
+                    <small>Admin</small>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <main style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+        <div style="max-width: 360px; width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; shadow: var(--shadow-md);">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2 style="font-weight: 800; font-size: 1.5rem;">Admin Sign In</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Secure access for university management.</p>
+            </div>
+
+            <form id="adminLoginForm" class="stack-form">
+                <input id="adminEmail" type="email" placeholder="Admin Email" required>
+                <input id="adminPassword" type="password" placeholder="Password" required>
+                <button class="cta primary" type="submit" style="width: 100%; margin-top: 0.5rem;">Login</button>
+            </form>
+            <p id="adminMessage" style="margin-top: 1rem; text-align: center; font-size: 0.8rem;"></p>
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script>
+        if (window.lucide) window.lucide.createIcons();
+        const API_BASE_URL = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL ? window.APP_CONFIG.API_BASE_URL : "").replace(/\/$/, "");
+
+        document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById("adminMessage");
+            msg.textContent = "Authenticating...";
+            msg.style.color = "var(--text-muted)";
+            
+            const p = { email: document.getElementById("adminEmail").value, password: document.getElementById("adminPassword").value };
+            try {
+                const r = await fetch(`${API_BASE_URL}/api/auth/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
+                const d = await r.json();
+                
+                if (d.token) {
+                    if (!d.isAdmin) {
+                        msg.textContent = "Access Denied: Admin role required.";
+                        msg.style.color = "#dc2626";
+                        return;
+                    }
+                    localStorage.setItem("lf_token", d.token);
+                    localStorage.setItem("lf_email", d.email);
+                    localStorage.setItem("lf_name", d.fullName);
+                    localStorage.setItem("lf_isAdmin", "true");
+                    msg.textContent = "Welcome, Admin. Redirecting...";
+                    msg.style.color = "var(--primary)";
+                    setTimeout(() => window.location.href = "/", 1000);
+                } else {
+                    msg.textContent = d.message || "Invalid credentials.";
+                    msg.style.color = "#dc2626";
+                }
+            } catch (e) { 
+                msg.textContent = "Connection error."; 
+                msg.style.color = "#dc2626";
+            }
+        });
+
+        const theme = localStorage.getItem("lf_theme") || "light";
+        document.body.setAttribute("data-theme", theme);
+    </script>
+</body>
+</html>

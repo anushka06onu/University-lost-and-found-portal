@@ -65,17 +65,21 @@ public class ItemController {
     public ResponseEntity<String> deleteItem(@PathVariable Long id,
                                              @RequestHeader("Authorization") String authorization) {
         try {
-            authService.getUserFromToken(authorization);
+            StudentUser user = authService.getUserFromToken(authorization);
+            Optional<Item> item = itemService.getItemById(id);
+            if (item.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            if (!user.isAdmin() && !item.get().getPostedBy().equals(user.getEmail())) {
+                return ResponseEntity.status(403).body("You do not have permission to delete this item.");
+            }
+
+            itemService.deleteItem(id);
+            return ResponseEntity.ok("Item deleted successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        Optional<Item> item = itemService.getItemById(id);
-        if (item.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        itemService.deleteItem(id);
-        return ResponseEntity.ok("Item deleted successfully");
     }
 
     private boolean isCloudinaryUrl(String url) {

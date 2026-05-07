@@ -3,132 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Desk | University Lost and Found Portal</title>
+    <title>Support | University Lost & Found</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-<header class="navbar">
-    <div class="nav-wrap">
-        <a class="brand" href="/">
-            <span class="brand-mark">DIU</span>
-            <span class="brand-text">
-                <strong>Lost & Found</strong>
-                <small>Official Item Reporting Portal</small>
-            </span>
-        </a>
-
-        <nav class="nav-links">
-            <a class="nav-link-anchor" href="/">Home</a>
-            <a class="nav-link-anchor" href="/contact.html">Contact Us</a>
-        </nav>
-
-        <div class="nav-actions">
-            <button class="theme-toggle" id="themeToggleBtn" type="button" aria-label="Toggle theme">
-                <span class="theme-dot"></span>
-                <span id="themeToggleText">Light</span>
-            </button>
+    <header class="navbar">
+        <div class="nav-wrap">
+            <a class="brand" href="/">
+                <div class="brand-logo">DIU</div>
+                <div class="brand-text">
+                    <strong>Lost & Found</strong>
+                    <small>Official Portal</small>
+                </div>
+            </a>
+            <nav class="nav-links">
+                <a class="nav-link-anchor" href="/">Home</a>
+                <a class="nav-link-anchor active" href="/contact">Support</a>
+            </nav>
         </div>
-    </div>
-</header>
+    </header>
 
-<main class="page-shell contact-page-shell">
-    <section class="contact-page-layout">
-        <section class="surface reveal contact-intro">
-            <p class="section-tag">Contact Desk</p>
-            <h1>Contact the University Lost and Found Desk</h1>
-            <p class="hero-text">
-                Use this page if a reported item needs manual follow-up, desk review, or additional communication.
-            </p>
-
-            <div class="hero-notes compact-notes">
-                <div class="hero-note">
-                    <span class="note-index">01</span>
-                    <div>
-                        <strong>For report follow-up</strong>
-                        <p>Use the desk when an existing record needs review or a correction.</p>
-                    </div>
-                </div>
-                <div class="hero-note">
-                    <span class="note-index">02</span>
-                    <div>
-                        <strong>Provide exact details</strong>
-                        <p>Mention the record title, issue, and your contact details clearly.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="surface reveal contact-form-panel">
-            <p class="section-tag">Send Message</p>
-            <h2>Write to the support desk</h2>
-            <form id="contactForm" class="stack-form">
-                <div class="field-grid">
-                    <div class="field">
-                        <label for="contactName">Full Name</label>
-                        <input id="contactName" type="text" required>
-                    </div>
-                    <div class="field">
-                        <label for="contactEmail">Email</label>
-                        <input id="contactEmail" type="email" required>
-                    </div>
-                    <div class="field full">
-                        <label for="contactSubject">Subject</label>
-                        <input id="contactSubject" type="text" required>
-                    </div>
-                    <div class="field full">
-                        <label for="contactMessage">Message</label>
-                        <textarea id="contactMessage" rows="7" required></textarea>
-                    </div>
-                </div>
-                <button class="cta primary full-width" type="submit">Send Message</button>
-                <p class="status-message" id="contactMessageStatus"></p>
-            </form>
-        </section>
-    </section>
-</main>
-
-<footer class="site-footer">
-    <div class="footer-shell">
-        <div class="footer-info">
-            <div class="footer-brand">
-                <span class="brand-mark footer-mark">DIU</span>
-                <div>
-                    <strong>University Lost and Found Portal</strong>
-                    <p>Official campus portal for maintaining clear lost and found records.</p>
-                </div>
+    <main class="container" style="padding-top: 100px;">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <div style="margin-bottom: 3rem; text-align: center;">
+                <h1>Contact Support</h1>
+                <p style="color: var(--text-muted);">We are here to help you recover your belongings.</p>
             </div>
 
-            <div class="footer-columns">
-                <div class="footer-column">
-                    <span class="footer-title">Navigation</span>
-                    <a class="footer-link-anchor" href="/">Home</a>
-                    <a class="footer-link-anchor" href="/contact.html">Contact Us</a>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem;">
+                <div class="card" style="padding: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem;">Send a Message</h3>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="contactName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" id="contactEmail" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea id="contactMessage" class="form-input" style="min-height: 150px;" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+                    </form>
                 </div>
-                <div class="footer-column">
-                    <span class="footer-title">Support</span>
-                    <span>Department of CSE, DIU</span>
-                    <span>Daffodil Smart City, Ashulia</span>
-                    <span>support@diu.edu.bd</span>
-                </div>
-            </div>
 
-            <div class="footer-credit">
-                <span>Developed by</span>
-                <a href="https://fatehahossainanushka.vercel.app/" target="_blank" rel="noreferrer">Fateha Hossain Anushka</a>
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div class="card" style="padding: 1.5rem;">
+                        <h4>Physical Office</h4>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Level 0, Knowledge Tower (KT)<br>Ashulia, DSC</p>
+                    </div>
+                    <div class="card" style="padding: 1.5rem;">
+                        <h4>Office Hours</h4>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Sun - Thu: 09:00 AM - 05:00 PM<br>Fri - Sat: Closed</p>
+                    </div>
+                    <div class="card" style="padding: 1.5rem;">
+                        <h4>Email Support</h4>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">support@diu.edu.bd</p>
+                    </div>
+                </div>
             </div>
         </div>
+    </main>
 
-        <section class="footer-contact compact-footer-contact">
-            <p class="section-tag">Desk Hours</p>
-            <h2>Support Desk</h2>
-            <p class="section-text">
-                For record issues, missing details, or follow-up requests regarding a reported item.
-            </p>
-        </section>
-    </div>
-</footer>
+    <footer class="site-footer" style="margin-top: 100px;">
+        <div class="footer-bottom">
+            <p>&copy; 2026 Daffodil International University | Developed by Anushka</p>
+        </div>
+    </footer>
 
-<script src="config.js"></script>
-<script src="contact.js"></script>
+    <script src="config.js"></script>
+    <script>
+        if (window.lucide) window.lucide.createIcons();
+        const API_BASE_URL = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL ? window.APP_CONFIG.API_BASE_URL : "").replace(/\/$/, "");
+        
+        document.getElementById("contactForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            alert("Support message received. We will contact you soon.");
+            e.target.reset();
+        });
+        
+        const theme = localStorage.getItem("lf_theme") || "light";
+        document.body.setAttribute("data-theme", theme);
+    </script>
 </body>
 </html>

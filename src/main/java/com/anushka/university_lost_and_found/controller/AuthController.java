@@ -48,4 +48,63 @@ public class AuthController {
                 request.get("password")
         ));
     }
+
+    @org.springframework.web.bind.annotation.GetMapping("/profile")
+    public ResponseEntity<Map<String, Object>> getProfile(@org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            com.anushka.university_lost_and_found.model.StudentUser user = authService.getUserFromToken(authHeader);
+            return ResponseEntity.ok(Map.of(
+                "fullName", user.getFullName(),
+                "email", user.getEmail(),
+                "profilePictureUrl", user.getProfilePictureUrl() != null ? user.getProfilePictureUrl() : "",
+                "isAdmin", user.isAdmin()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/profile")
+    public ResponseEntity<Map<String, Object>> updateProfile(
+            @org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody Map<String, String> request) {
+        try {
+            return ResponseEntity.ok(authService.updateProfile(authHeader, request.get("fullName"), request.get("profilePictureUrl")));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Map<String, Object>> changePassword(
+            @org.springframework.web.bind.annotation.RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody Map<String, String> request) {
+        try {
+            return ResponseEntity.ok(authService.changePassword(authHeader, request.get("oldPassword"), request.get("newPassword")));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
+        try {
+            return ResponseEntity.ok(authService.forgotPassword(request.get("email")));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            return ResponseEntity.ok(authService.resetPassword(
+                    request.get("email"),
+                    request.get("otp"),
+                    request.get("newPassword")
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+    }
 }

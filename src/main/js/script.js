@@ -26,6 +26,9 @@ let currentTheme = localStorage.getItem("lf_theme") || "dark";
 const refreshIcons = () => { if (window.lucide) window.lucide.createIcons(); };
 const escapeHtml = (v) => String(v).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 const formatDate = (v) => { if (!v) return "N/A"; const d = new Date(v); return isNaN(d) ? v : d.toLocaleDateString(); };
+const openModal = (modal) => { if (modal) modal.classList.add("active"); };
+const closeModal = (modal) => { if (modal) modal.classList.remove("active"); };
+window.closeModal = closeModal;
 
 const uploadToCloudinary = async (file) => {
     console.log("Simulating upload for:", file.name);
@@ -107,21 +110,23 @@ const renderItems = (items) => {
     }
 
     itemsContainer.innerHTML = sorted.map((item, idx) => `
-        <div class="item-card reveal" style="animation-delay:${idx * 0.05}s">
-            ${item.imageUrl ? `<div class="item-image-wrap"><img class="item-image" src="${escapeHtml(item.imageUrl)}"></div>` : ""}
-            <div class="item-top">
-                <h3>${escapeHtml(item.title)}</h3>
-                <span class="badge ${item.type}">${item.type}</span>
+        <div class="card reveal" style="animation-delay:${idx * 0.05}s">
+            <div class="card-img">
+                <span class="card-badge ${item.type}">${item.type}</span>
+                ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" style="width:100%; height:100%; object-fit:cover;">` : `<i data-lucide="image" style="width:48px; height:48px; color:var(--text-dim);"></i>`}
             </div>
-            <p class="item-text">${escapeHtml(item.description)}</p>
-            <div class="meta">
-                <span><i data-lucide="map-pin" style="width:12px; height:12px; margin-right:4px;"></i> ${escapeHtml(item.location)}</span>
-                <span><i data-lucide="calendar" style="width:12px; height:12px; margin-right:4px;"></i> ${formatDate(item.createdAt)}</span>
-                <span><i data-lucide="user" style="width:12px; height:12px; margin-right:4px;"></i> ${escapeHtml(item.postedBy)}</span>
+            <div class="card-body">
+                <h3 class="card-title">${escapeHtml(item.title)}</h3>
+                <p class="card-text">${escapeHtml(item.description)}</p>
+                <div class="card-meta">
+                    <div><i data-lucide="map-pin" style="width:14px; height:14px;"></i> ${escapeHtml(item.location)}</div>
+                    <div><i data-lucide="calendar" style="width:14px; height:14px;"></i> ${formatDate(item.createdAt)}</div>
+                    <div><i data-lucide="user" style="width:14px; height:14px;"></i> ${escapeHtml(item.postedBy)}</div>
+                </div>
             </div>
-            <div class="actions">
-                <button class="action-btn" onclick="getItemById(${item.id})">Details</button>
-                ${authToken && (item.postedBy === studentEmail || isAdmin) ? `<button class="action-btn" style="color:#ef4444" onclick="deleteItem(${item.id})">Delete</button>` : ""}
+            <div class="card-footer">
+                <button class="btn btn-primary" style="flex:1;" onclick="getItemById(${item.id})">Details</button>
+                ${authToken && (item.postedBy === studentEmail || isAdmin) ? `<button class="btn btn-danger" style="padding:0.6rem;" onclick="deleteItem(${item.id})"><i data-lucide="trash-2"></i></button>` : ""}
             </div>
         </div>
     `).join("");
@@ -129,9 +134,9 @@ const renderItems = (items) => {
 };
 
 window.getItemById = async (id) => {
-    if (!authToken) { alert("Please login to view contact details."); authModal.classList.remove("hidden"); switchView("login"); return; }
+    if (!authToken) { alert("Please login to view contact details."); openModal(authModal); switchView("login"); return; }
     detailCard.innerHTML = "Loading...";
-    detailCard.classList.remove("hidden");
+    openModal(document.getElementById("detailModal"));
     detailCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     try {
@@ -179,7 +184,7 @@ document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
         if (d.token) { 
             authToken = d.token; studentEmail = d.email; studentName = d.fullName; isAdmin = !!d.isAdmin;
             localStorage.setItem("lf_token", d.token); localStorage.setItem("lf_email", d.email); localStorage.setItem("lf_name", d.fullName); localStorage.setItem("lf_isAdmin", isAdmin ? "true" : "false");
-            authModal.classList.add("hidden"); updateAuthUi(); loadItems("");
+            closeModal(authModal); updateAuthUi(); loadItems("");
         }
         else document.getElementById("loginMessage").textContent = d.message;
     } catch (e) { document.getElementById("loginMessage").textContent = "Login failed."; }
@@ -224,7 +229,7 @@ document.getElementById("itemForm")?.addEventListener("submit", async (e) => {
     const item = { title: document.getElementById("title").value, type: document.getElementById("type").value, description: document.getElementById("description").value, location: document.getElementById("location").value, contactInfo: document.getElementById("contactInfo").value, imageUrl: finalImageUrl };
     try {
         const r = await fetch(`${API_BASE_URL}/api/items`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` }, body: JSON.stringify(item) });
-        if (r.ok) { postModal.classList.add("hidden"); document.getElementById("itemForm").reset(); loadItems(currentFilter); }
+        if (r.ok) { closeModal(postModal); document.getElementById("itemForm").reset(); loadItems(currentFilter); }
         else msg.textContent = "Error publishing.";
     } catch (e) { msg.textContent = "Error publishing."; }
 });
@@ -287,22 +292,22 @@ document.querySelectorAll("[data-scroll-target]").forEach(btn => {
 
 // Modals
 document.getElementById("forgotPasswordLink")?.addEventListener("click", (e) => { e.preventDefault(); switchView("forgot"); });
-document.getElementById("openProfileBtn")?.addEventListener("click", () => { profileModal.classList.remove("hidden"); switchView("editProfile"); loadProfile(); });
-document.getElementById("closeProfileBtn")?.addEventListener("click", () => profileModal.classList.add("hidden"));
-document.getElementById("closeProfileBackdrop")?.addEventListener("click", () => profileModal.classList.add("hidden"));
+document.getElementById("openProfileBtn")?.addEventListener("click", () => { openModal(profileModal); switchView("editProfile"); loadProfile(); });
+document.getElementById("closeProfileBtn")?.addEventListener("click", () => closeModal(profileModal));
+document.getElementById("closeProfileBackdrop")?.addEventListener("click", () => closeModal(profileModal));
 document.getElementById("showEditProfileTab")?.addEventListener("click", () => switchView("editProfile"));
 document.getElementById("showSecurityTab")?.addEventListener("click", () => switchView("security"));
-document.getElementById("openLoginBtn")?.addEventListener("click", () => { authModal.classList.remove("hidden"); switchView("login"); });
-document.getElementById("heroRegisterBtn")?.addEventListener("click", () => { authModal.classList.remove("hidden"); switchView("register"); });
-document.getElementById("openPostBtn")?.addEventListener("click", () => postModal.classList.remove("hidden"));
-document.getElementById("closeAuthBtn")?.addEventListener("click", () => authModal.classList.add("hidden"));
-document.getElementById("closeAuthBackdrop")?.addEventListener("click", () => authModal.classList.add("hidden"));
-document.getElementById("closePostBtn")?.addEventListener("click", () => postModal.classList.add("hidden"));
-document.getElementById("closePostBackdrop")?.addEventListener("click", () => postModal.classList.add("hidden"));
+document.getElementById("openLoginBtn")?.addEventListener("click", () => { openModal(authModal); switchView("login"); });
+document.getElementById("heroRegisterBtn")?.addEventListener("click", () => { openModal(authModal); switchView("register"); });
+document.getElementById("openPostBtn")?.addEventListener("click", () => openModal(postModal));
+document.getElementById("closeAuthBtn")?.addEventListener("click", () => closeModal(authModal));
+document.getElementById("closeAuthBackdrop")?.addEventListener("click", () => closeModal(authModal));
+document.getElementById("closePostBtn")?.addEventListener("click", () => closeModal(postModal));
+document.getElementById("closePostBackdrop")?.addEventListener("click", () => closeModal(postModal));
 document.getElementById("showLoginTab")?.addEventListener("click", () => switchView("login"));
 document.getElementById("showRegisterTab")?.addEventListener("click", () => switchView("register"));
 document.getElementById("showVerifyTab")?.addEventListener("click", () => switchView("verify"));
-document.getElementById("logoutBtn")?.addEventListener("click", () => { authToken = ""; localStorage.clear(); updateAuthUi(); loadItems(""); profileModal.classList.add("hidden"); });
+document.getElementById("logoutBtn")?.addEventListener("click", () => { authToken = ""; localStorage.clear(); updateAuthUi(); loadItems(""); closeModal(profileModal); });
 document.getElementById("refreshBtn")?.addEventListener("click", () => loadItems(currentFilter));
 document.getElementById("sortOrder")?.addEventListener("change", (e) => { currentSort = e.target.value; loadItems(currentFilter); });
 

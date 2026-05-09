@@ -35,8 +35,12 @@
 
             <div class="nav-actions">
                 <button class="theme-toggle" id="themeToggleBtn" title="Toggle Dark/Light Mode">
-                    <i data-lucide="sun"></i>
+                    <i data-lucide="sun" id="themeIcon"></i>
                 </button>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="statusDot" style="width: 8px; height: 8px; border-radius: 50%; background: #94a3b8;"></span>
+                    <span id="userStatus" style="font-size: 0.9rem; font-weight: 600; color: var(--text);">Guest</span>
+                </div>
                 <button class="btn btn-primary" id="openLoginBtn">Sign In</button>
                 <button class="btn btn-ghost hidden" id="openProfileBtn">
                     <i data-lucide="user"></i>
@@ -63,7 +67,7 @@
         <!-- Records Section -->
         <section class="container" id="records">
             <div class="section-header">
-                <h2>Recent Records (<span id="itemCount">0</span>)</h2>
+                <h2>Recent Records (<span id="itemCount">0</span>) <span id="activeFilter" style="font-size: 1rem; color: var(--text-muted); font-weight: normal;">(All)</span></h2>
                 <div class="controls">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search by item, location...">
                     <div class="filter-tabs">
@@ -91,7 +95,7 @@
         <!-- FAQ Section -->
         <section class="container" id="faq">
             <div style="text-align: center; margin-bottom: 3rem;">
-                <h2>Common Questions</h2>
+                <h2>Frequently Asked Questions (FAQ)</h2>
                 <p style="color: var(--text-muted);">How to use the recovery portal.</p>
             </div>
             <div class="faq">
@@ -142,10 +146,16 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Password</label>
-                        <input type="password" id="loginPassword" class="form-input" placeholder="Your password" required>
+                        <div style="position: relative;">
+                            <input type="password" id="loginPassword" class="form-input" placeholder="Your password" required style="padding-right: 3rem;">
+                            <button type="button" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim);" onclick="togglePassword('loginPassword')">
+                                <i data-lucide="eye"></i>
+                            </button>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
                     <button type="button" class="btn btn-ghost" style="width: 100%; margin-top: 0.5rem;" onclick="switchAuthView('forgot')">Forgot Password?</button>
+                    <p id="loginMessage" style="color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; text-align: center;"></p>
                 </form>
             </div>
 
@@ -161,9 +171,15 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Password</label>
-                        <input type="password" id="registerPassword" class="form-input" placeholder="Create a password" required>
+                        <div style="position: relative;">
+                            <input type="password" id="registerPassword" class="form-input" placeholder="Create a password" required style="padding-right: 3rem;">
+                            <button type="button" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim);" onclick="togglePassword('registerPassword')">
+                                <i data-lucide="eye"></i>
+                            </button>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                    <p id="registerMessage" style="color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; text-align: center;"></p>
                 </form>
             </div>
 
@@ -178,6 +194,7 @@
                         <input type="text" id="verifyOtp" class="form-input" placeholder="6-digit code" required maxlength="6">
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Verify & Sign In</button>
+                    <p id="verifyMessage" style="color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; text-align: center;"></p>
                 </form>
             </div>
 
@@ -189,6 +206,7 @@
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Send Reset Code</button>
                     <button type="button" class="btn btn-ghost" style="width: 100%; margin-top: 0.5rem;" onclick="switchAuthView('login')">Back to Login</button>
+                    <p id="forgotMessage" style="color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; text-align: center;"></p>
                 </form>
             </div>
 
@@ -201,9 +219,15 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">New Password</label>
-                        <input type="password" id="resetNewPassword" class="form-input" required>
+                        <div style="position: relative;">
+                            <input type="password" id="resetNewPassword" class="form-input" required style="padding-right: 3rem;">
+                            <button type="button" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim);" onclick="togglePassword('resetNewPassword')">
+                                <i data-lucide="eye"></i>
+                            </button>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Update Password</button>
+                    <p id="resetMessage" style="color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; text-align: center;"></p>
                 </form>
             </div>
         </div>
@@ -321,7 +345,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 Daffodil International University | Developed by Anushka</p>
+            <p>&copy; 2026 Daffodil International University | Developed by <a href="https://fatehahossainanushka.vercel.app/" target="_blank" rel="noopener noreferrer">Fateha Hossain Anushka</a></p>
         </div>
     </footer>
 

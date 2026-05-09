@@ -20,7 +20,7 @@ let authToken = localStorage.getItem("lf_token") || "";
 let studentEmail = localStorage.getItem("lf_email") || "";
 let studentName = localStorage.getItem("lf_name") || "";
 let isAdmin = localStorage.getItem("lf_isAdmin") === "true";
-let currentTheme = localStorage.getItem("lf_theme") || "dark";
+let currentTheme = "dark";
 
 // Helpers
 const refreshIcons = () => { if (window.lucide) window.lucide.createIcons(); };
@@ -64,11 +64,11 @@ const updateAuthUi = () => {
     
     document.getElementById("openLoginBtn")?.classList.toggle("hidden", loggedIn);
     document.getElementById("openProfileBtn")?.classList.toggle("hidden", !loggedIn);
-    document.getElementById("openPostBtn")?.classList.toggle("hidden", !loggedIn);
+    document.getElementById("logoutBtn")?.classList.toggle("hidden", !loggedIn);
     refreshIcons();
 };
 
-const switchView = (view) => {
+function switchView(view) {
     ["login", "register", "verify", "forgot", "reset", "editProfile", "security"].forEach(v => {
         document.getElementById(`${v}View`)?.classList.toggle("hidden", v !== view);
         document.getElementById(`show${v.charAt(0).toUpperCase() + v.slice(1)}Tab`)?.classList.toggle("active", v === view);
@@ -84,7 +84,7 @@ const loadProfile = async () => {
         localStorage.setItem("lf_isAdmin", isAdmin ? "true" : "false");
         
         document.getElementById("profileName").textContent = user.fullName + (isAdmin ? " (Admin)" : "");
-        document.getElementById("profileEmail").textContent = user.email;
+        document.getElementById("profileEmailDisplay").textContent = user.email;
         document.getElementById("profilePreview").src = user.profilePictureUrl || "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
         document.getElementById("editFullName").value = user.fullName;
         document.getElementById("editProfilePic").value = user.profilePictureUrl || "";
@@ -100,17 +100,23 @@ const loadItems = async (type) => {
     let url = `${API_BASE_URL}/api/items`;
     if (type) url += `?type=${encodeURIComponent(type)}`;
 
+    const mockItems = [
+        { id: 1, title: "iPhone 13 Pro", type: "lost", description: "Lost near Knowledge Tower. Space Gray color.", location: "Knowledge Tower", postedBy: "admin@diu.edu.bd", createdAt: new Date().toISOString(), imageUrl: "https://images.unsplash.com/photo-1632624748997-651469e69123?w=500" },
+        { id: 2, title: "DIU Student ID Card", type: "found", description: "Found in the central library. Name: John Doe.", location: "Library", postedBy: "security@diu.edu.bd", createdAt: new Date().toISOString(), imageUrl: "" },
+        { id: 3, title: "Dell Laptop Charger", type: "lost", description: "Left in Lab 4B on the 4th floor.", location: "Lab 4B", postedBy: "student@diu.edu.bd", createdAt: new Date().toISOString(), imageUrl: "" }
+    ];
+
     try {
         const response = await fetch(url);
         const items = await response.json();
-        renderItems(items);
+        
+        if (!items || items.length === 0) {
+            renderItems(mockItems);
+        } else {
+            renderItems(items);
+        }
     } catch (e) {
         console.log("API failed, using mock data");
-        const mockItems = [
-            { id: 1, title: "iPhone 13 Pro", type: "lost", description: "Lost near Knowledge Tower. Space Gray color.", location: "Knowledge Tower", postedBy: "admin@diu.edu.bd", createdAt: new Date().toISOString(), imageUrl: "https://images.unsplash.com/photo-1632624748997-651469e69123?w=500" },
-            { id: 2, title: "DIU Student ID Card", type: "found", description: "Found in the central library. Name: John Doe.", location: "Library", postedBy: "security@diu.edu.bd", createdAt: new Date().toISOString(), imageUrl: "" },
-            { id: 3, title: "Dell Laptop Charger", type: "lost", description: "Left in Lab 4B on the 4th floor.", location: "Lab 4B", postedBy: "student@diu.edu.bd", createdAt: new Date().toISOString(), imageUrl: "" }
-        ];
         renderItems(mockItems);
     }
 };
@@ -135,7 +141,7 @@ const renderItems = (items) => {
         <div class="card reveal" style="animation-delay:${idx * 0.05}s">
             <div class="card-img">
                 <span class="card-badge ${item.type}">${item.type}</span>
-                ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" style="width:100%; height:100%; object-fit:cover;">` : `<i data-lucide="image" style="width:48px; height:48px; color:var(--text-dim);"></i>`}
+                ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--surface); color:var(--text-dim); gap:0.5rem;"><i data-lucide="image" style="width:32px; height:32px;"></i><span style="font-size:0.8rem;">Picture not uploaded</span></div>`}
             </div>
             <div class="card-body">
                 <h3 class="card-title">${escapeHtml(item.title)}</h3>
@@ -148,7 +154,7 @@ const renderItems = (items) => {
             </div>
             <div class="card-footer">
                 <button class="btn btn-primary" style="flex:1;" onclick="getItemById(${item.id})">Details</button>
-                ${authToken && (item.postedBy === studentEmail || isAdmin) ? `<button class="btn btn-danger" style="padding:0.6rem;" onclick="deleteItem(${item.id})"><i data-lucide="trash-2"></i></button>` : ""}
+                ${authToken && isAdmin ? `<button class="btn btn-danger" style="padding:0.6rem;" onclick="deleteItem(${item.id})"><i data-lucide="trash-2"></i></button>` : ""}
             </div>
         </div>
     `).join("");
@@ -309,10 +315,10 @@ document.getElementById("themeToggleBtn")?.addEventListener("click", () => {
     refreshIcons();
 });
 
-document.querySelectorAll(".filter-btn").forEach(btn => {
+document.querySelectorAll(".filter-tab").forEach(btn => {
     btn.addEventListener("click", () => {
         currentFilter = btn.dataset.type;
-        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".filter-tab").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         activeFilter.textContent = currentFilter ? currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1) : "All";
         loadItems(currentFilter);
@@ -334,8 +340,24 @@ document.getElementById("closeProfileBackdrop")?.addEventListener("click", () =>
 document.getElementById("showEditProfileTab")?.addEventListener("click", () => switchView("editProfile"));
 document.getElementById("showSecurityTab")?.addEventListener("click", () => switchView("security"));
 document.getElementById("openLoginBtn")?.addEventListener("click", () => { openModal(authModal); switchView("login"); });
-document.getElementById("heroRegisterBtn")?.addEventListener("click", () => { openModal(authModal); switchView("register"); });
-document.getElementById("openPostBtn")?.addEventListener("click", () => openModal(postModal));
+document.getElementById("navReportBtn")?.addEventListener("click", () => {
+    if (!authToken) {
+        alert("Please sign in to submit a report.");
+        openModal(authModal);
+        switchView("login");
+    } else {
+        openModal(postModal);
+    }
+});
+document.getElementById("heroAccessBtn")?.addEventListener("click", () => {
+    if (!authToken) {
+        alert("Please sign in to submit a report.");
+        openModal(authModal);
+        switchView("login");
+    } else {
+        openModal(postModal);
+    }
+});
 document.getElementById("closeAuthBtn")?.addEventListener("click", () => closeModal(authModal));
 document.getElementById("closeAuthBackdrop")?.addEventListener("click", () => closeModal(authModal));
 document.getElementById("closePostBtn")?.addEventListener("click", () => closeModal(postModal));
@@ -378,11 +400,11 @@ document.getElementById("verifyForm")?.addEventListener("submit", async (e) => {
     } catch (e) { document.getElementById("verifyMessage").textContent = "Verify failed."; }
 });
 
-document.querySelectorAll(".accordion-header").forEach(h => {
+document.querySelectorAll(".faq-header").forEach(h => {
     h.addEventListener("click", () => {
         const item = h.parentElement;
         item.classList.toggle("active");
-        document.querySelectorAll(".accordion-item").forEach(i => { if (i !== item) i.classList.remove("active"); });
+        document.querySelectorAll(".faq-item").forEach(i => { if (i !== item) i.classList.remove("active"); });
     });
 });
 

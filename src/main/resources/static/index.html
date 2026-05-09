@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
     <!-- Notifications -->
     <div id="toast" class="toast">
         <div class="toast-body">
@@ -26,12 +26,15 @@
                 </div>
             </a>
             
-            <nav class="nav-links">
+            <nav class="nav-links" id="navLinks">
                 <a class="nav-link-anchor" href="/">Home</a>
                 <a class="nav-link-anchor" href="#records">Browse Records</a>
                 <a class="nav-link-anchor" href="#faq">FAQ</a>
                 <a class="nav-link-anchor" href="/contact">Support</a>
             </nav>
+            <button class="btn btn-ghost" id="hamburgerBtn" style="display: none;">
+                <i data-lucide="menu"></i>
+            </button>
 
             <div class="nav-actions">
                 <button class="theme-toggle" id="themeToggleBtn" title="Toggle Dark/Light Mode">
@@ -42,6 +45,7 @@
                     <span id="userStatus" style="font-size: 0.9rem; font-weight: 600; color: var(--text);">Guest</span>
                 </div>
                 <button class="btn btn-primary" id="openLoginBtn">Sign In</button>
+                <button class="btn btn-primary" id="navReportBtn">Report Item</button>
                 <button class="btn btn-ghost hidden" id="openProfileBtn">
                     <i data-lucide="user"></i>
                 </button>
@@ -61,6 +65,35 @@
                     <button class="btn btn-secondary" onclick="document.getElementById('records').scrollIntoView({behavior:'smooth'})">Browse Records</button>
                 </div>
                 <p id="studentStateText" style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-dim);">Connecting to campus database...</p>
+            </div>
+        <!-- About System Section -->
+        <section class="container" id="about-system" style="margin-top: 4rem; margin-bottom: 4rem;">
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <h2 style="font-size: 2rem; font-weight: 800;">About the System</h2>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">How this portal helps the campus community.</p>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 2rem;">
+                <div class="card" style="padding: 2.5rem; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);">
+                    <div style="width: 60px; height: 60px; background: var(--primary-soft); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <i data-lucide="shield-check" style="width: 30px; height: 30px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Secure & Verified</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Only verified students can post and view contact details, ensuring a safe and reliable recovery process.</p>
+                </div>
+                <div class="card" style="padding: 2.5rem; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);">
+                    <div style="width: 60px; height: 60px; background: var(--primary-soft); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <i data-lucide="clock" style="width: 30px; height: 30px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Real-time Updates</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Instant visibility of reported items helps speed up the return of lost belongings to their rightful owners.</p>
+                </div>
+                <div class="card" style="padding: 2.5rem; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);">
+                    <div style="width: 60px; height: 60px; background: var(--primary-soft); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <i data-lucide="heart" style="width: 30px; height: 30px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Community Driven</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Fosters a culture of honesty and helpfulness among students and staff across the campus.</p>
+                </div>
             </div>
         </section>
 
@@ -307,7 +340,7 @@
             <div id="profileSecuritySection" class="hidden">
                 <form id="passwordForm">
                     <div class="form-group">
-                        <label class="form-label">Current Password</label>
+                        <label class="form-label">Old Password</label>
                         <input type="password" id="oldPassword" class="form-input">
                     </div>
                     <div class="form-group">

@@ -17,10 +17,18 @@
                     <small>Official Portal</small>
                 </div>
             </a>
-            <nav class="nav-links">
+            <nav class="nav-links" id="navLinks">
                 <a class="nav-link-anchor" href="/">Home</a>
                 <a class="nav-link-anchor active" href="/contact">Support</a>
             </nav>
+            <button class="btn btn-ghost" id="hamburgerBtn" style="display: none;">
+                <i data-lucide="menu"></i>
+            </button>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+                    <i data-lucide="sun" id="themeIcon"></i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -86,8 +94,39 @@
             e.target.reset();
         });
         
-        const theme = localStorage.getItem("lf_theme") || "light";
-        document.body.setAttribute("data-theme", theme);
+        const themeToggleBtn = document.getElementById("themeToggleBtn");
+        const themeIcon = document.getElementById("themeIcon");
+        let currentTheme = localStorage.getItem("lf_theme") || "light";
+        
+        const updateTheme = () => {
+            document.body.setAttribute("data-theme", currentTheme);
+            if (themeIcon) {
+                themeIcon.setAttribute("data-lucide", currentTheme === "dark" ? "moon" : "sun");
+                if (window.lucide) window.lucide.createIcons();
+            }
+        };
+        
+        updateTheme();
+        
+        themeToggleBtn?.addEventListener("click", () => {
+            currentTheme = currentTheme === "dark" ? "light" : "dark";
+            localStorage.setItem("lf_theme", currentTheme);
+            updateTheme();
+        });
+        
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const navLinks = document.getElementById("navLinks");
+        
+        hamburgerBtn?.addEventListener("click", (e) => {
+            e.stopPropagation();
+            navLinks?.classList.toggle("active");
+        });
+        
+        document.addEventListener("click", (e) => {
+            if (navLinks?.classList.contains("active") && !navLinks.contains(e.target) && e.target !== hamburgerBtn) {
+                navLinks.classList.remove("active");
+            }
+        });
     </script>
 </body>
 </html>

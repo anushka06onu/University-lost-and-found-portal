@@ -1,95 +1,78 @@
-# University Lost and Found Portal
+# University Lost & Found Portal
 
-This is a simple Spring Boot project for a university lost and found system.  
-It allows users to register, login, post lost or found items, view records, search items, and contact the support desk.
+A professional and premium web application designed for university students and staff to report lost items and return found property within the campus community. Built with a robust Spring Boot backend and a modern, responsive frontend.
 
-## Features
+## 🌟 Key Features
 
-- register and login
-- OTP verification
-- add lost item or found item
-- view all items
-- filter items by type
-- search item by id
-- delete item
-- add image using Cloudinary link
-- contact desk page
-- light and dark mode
+### 🔐 Authentication & Security
+- **Secure Sign In & Registration**: Students must authenticate using their university email (e.g., `@diu.edu.bd`).
+- **OTP Verification**: Multi-factor authentication with verification codes for registration and password resets.
+- **Forgot Password**: Self-service account recovery flow.
 
-## Technology Used
+### 📋 Item Management
+- **Report Lost/Found Items**: Easily submit details about items including title, location, description, and contact info.
+- **Image Support**: Users can attach images of the items to help with identification.
+- **Search & Filter**: Browse records with real-time filtering by type (Lost/Found).
 
-- Java
-- Spring Boot
-- Spring Web
-- Spring Data JPA
-- MySQL
-- HTML
-- CSS
-- JavaScript
+### 🛡️ Admin Controls
+- **Restricted Permissions**: Regular users cannot delete or edit posts (not even their own) to prevent tampering.
+- **Dedicated Admin Portal**: Admins have exclusive access to delete resolved or invalid records.
 
-## Project Structure
+### 🎨 Premium UI/UX
+- **Default Dark Mode**: A sleek, modern dark theme active by default, with a toggle switch to light mode.
+- **Vibrant Design**: High-contrast gradients (Indigo to Pink) for a premium feel.
+- **Fully Responsive**: Optimized for mobile, tablet, and desktop viewports with a custom hamburger menu.
 
-- `controller`
-- `service`
-- `repository`
-- `model`
+---
 
-## Database
+## 📸 Screenshots
 
-This project uses MySQL database.
+### Hero Section & Navigation
+![Hero Section](src/main/resources/static/images/screenshot_hero.png)
 
-Set these environment variables before running:
+### Secure Authentication
+![Login Modal](src/main/resources/static/images/screenshot_login.png)
 
-```bash
-export DB_USERNAME=your_mysql_username
-export DB_PASSWORD=your_mysql_password
-```
+### About the System
+![About Section](src/main/resources/static/images/screenshot_about.png)
 
-Optional mail configuration:
+---
 
-```bash
-export MAIL_USERNAME=your_mail_username
-export MAIL_PASSWORD=your_mail_password
-export MAIL_FROM=your_mail_address
-```
+## 🛠️ Technology Stack
 
-## How to Run
+### Backend
+- **Java 17+**
+- **Spring Boot 3.5.0**
+- **Spring Data JPA** (Hibernate)
+- **H2 Database** (File-based storage for easy local setup, previously MySQL)
 
-```bash
-./mvnw spring-boot:run
-```
+### Frontend
+- **HTML5** (Semantic structure)
+- **Vanilla CSS3** (Custom properties, grid layouts, animations)
+- **JavaScript** (ES6+, async/await for API calls)
+- **Lucide Icons** (For modern iconography)
 
-Then open:
+---
 
-- `http://localhost:8080`
-- `http://localhost:8080/contact.html`
+## 🚀 How to Run Locally
 
-## Deploy on Render
+### Prerequisites
+- Java 17 or higher installed.
+- Maven (or use the included wrapper `./mvnw`).
 
-This project is prepared for Render deployment with the included `render.yaml` file.
+### Steps
+1. Clone the repository to your local machine.
+2. Navigate to the project root directory.
+3. Run the following command:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+4. Open your browser and navigate to `http://localhost:8080`.
 
-On Render, create a new Web Service from this GitHub repository and set these environment variables:
+---
 
-- `DB_URL`
-- `DB_USERNAME`
-- `DB_PASSWORD`
-- `MAIL_USERNAME` optional
-- `MAIL_PASSWORD` optional
-- `MAIL_FROM` optional
+## 📄 Note on Image Uploads
+*The current simulation generates a random high-quality placeholder image via `picsum.photos` when a file is attached to bypass standard database string length limits. In a full production environment, this connects to a Cloudinary storage bucket.*
 
-Build command:
-
-```bash
-./mvnw clean package -DskipTests
-```
-
-Start command:
-
-```bash
-java -jar target/university-lost-and-found-portal-0.0.1-SNAPSHOT.jar
-```
-
-## Note
-
-- OTP is fixed for development
-- image link should be a Cloudinary URL
+---
+Developed by **Fateha Hossain Anushka**

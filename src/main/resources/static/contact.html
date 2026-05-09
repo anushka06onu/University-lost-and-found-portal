@@ -96,7 +96,7 @@
         
         const themeToggleBtn = document.getElementById("themeToggleBtn");
         const themeIcon = document.getElementById("themeIcon");
-        let currentTheme = localStorage.getItem("lf_theme") || "light";
+        let currentTheme = localStorage.getItem("lf_theme") || "dark";
         
         const updateTheme = () => {
             document.body.setAttribute("data-theme", currentTheme);

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>University Lost & Found Portal</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body data-theme="dark">
@@ -32,9 +32,6 @@
                 <a class="nav-link-anchor" href="#faq">FAQ</a>
                 <a class="nav-link-anchor" href="/contact">Support</a>
             </nav>
-            <button class="btn btn-ghost" id="hamburgerBtn" style="display: none;">
-                <i data-lucide="menu"></i>
-            </button>
 
             <div class="nav-actions">
                 <button class="theme-toggle" id="themeToggleBtn" title="Toggle Dark/Light Mode">
@@ -51,6 +48,9 @@
                 </button>
                 <button class="btn btn-danger hidden" id="logoutBtn">Sign Out</button>
             </div>
+            <button class="btn btn-ghost" id="hamburgerBtn" style="display: none;">
+                <i data-lucide="menu"></i>
+            </button>
         </div>
     </header>
 
@@ -153,6 +153,35 @@
             </div>
         </section>
     </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <h3>DIU Lost & Found</h3>
+                <p>The official portal for asset recovery at Daffodil International University. Integrated with campus security services.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Portal</h4>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="#records">Registry</a></li>
+                    <li><a href="/contact">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Office</h4>
+                <ul>
+                    <li>Ashulia, DSC</li>
+                    <li>Level 0, Knowledge Tower</li>
+                    <li>09:00 AM - 05:00 PM</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Daffodil International University | Developed by <a href="https://fatehahossainanushka.vercel.app/" target="_blank" rel="noopener noreferrer">Fateha Hossain Anushka</a></p>
+        </div>
+    </footer>
 
     <!-- Modals -->
     <div id="detailModal" class="modal">
@@ -266,9 +295,9 @@
         </div>
     </div>
 
-    <div id="postModal" class="modal">
-        <div class="modal-overlay" onclick="closeModal(document.getElementById('postModal'))"></div>
-        <div class="modal-content">
+    <div id="postModal" class="modal" style="display: flex !important; justify-content: center !important; align-items: center !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important;">
+        <div class="modal-overlay" onclick="closeModal(document.getElementById('postModal'))" style="position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: rgba(10, 15, 29, 0.98) !important;"></div>
+        <div class="modal-content" style="position: relative !important; margin: auto !important; max-width: 500px !important; background: var(--surface); border-radius: 24px; padding: 3rem; box-shadow: var(--shadow-xl); border: 1px solid var(--border);">
             <button class="modal-close" onclick="closeModal(document.getElementById('postModal'))">&times;</button>
             <h2 style="margin-bottom: 1.5rem;">Report New Item</h2>
             <form id="itemForm">
@@ -299,9 +328,8 @@
                     <label class="form-label">Attachment</label>
                     <input type="file" id="itemImageFile" class="form-input" accept="image/*">
                     <input type="hidden" id="imageUrl">
-                    <p id="uploadStatus" style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--primary);"></p>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Report</button>
+                    <p id="formMessage" style="margin-top: 1rem; text-align: center; font-size: 0.85rem; color: var(--primary);"></p>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Report</button>
             </form>
         </div>
     </div>
@@ -353,34 +381,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="site-footer">
-        <div class="footer-content">
-            <div class="footer-info">
-                <h3>DIU Lost & Found</h3>
-                <p>The official portal for asset recovery at Daffodil International University. Integrated with campus security services.</p>
-            </div>
-            <div class="footer-links">
-                <h4>Portal</h4>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="#records">Registry</a></li>
-                    <li><a href="/contact">Support</a></li>
-                </ul>
-            </div>
-            <div class="footer-links">
-                <h4>Office</h4>
-                <ul>
-                    <li>Ashulia, DSC</li>
-                    <li>Level 0, Knowledge Tower</li>
-                    <li>09:00 AM - 05:00 PM</li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Daffodil International University | Developed by <a href="https://fatehahossainanushka.vercel.app/" target="_blank" rel="noopener noreferrer">Fateha Hossain Anushka</a></p>
-        </div>
-    </footer>
+
 
     <script src="config.js"></script>
     <script src="script.js"></script>

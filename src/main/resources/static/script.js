@@ -20,7 +20,7 @@ let authToken = localStorage.getItem("lf_token") || "";
 let studentEmail = localStorage.getItem("lf_email") || "";
 let studentName = localStorage.getItem("lf_name") || "";
 let isAdmin = localStorage.getItem("lf_isAdmin") === "true";
-let currentTheme = "dark";
+let currentTheme = localStorage.getItem("lf_theme") || "dark";
 
 // Helpers
 const refreshIcons = () => { if (window.lucide) window.lucide.createIcons(); };
@@ -46,8 +46,8 @@ const uploadToCloudinary = async (file) => {
     console.log("Simulating upload for:", file.name);
     return new Promise((resolve) => {
         setTimeout(() => {
-            resolve("https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg");
-        }, 1500);
+            resolve(`https://picsum.photos/500/500?random=${Math.floor(Math.random() * 1000)}`);
+        }, 500);
     });
 };
 
@@ -110,14 +110,10 @@ const loadItems = async (type) => {
         const response = await fetch(url);
         const items = await response.json();
         
-        if (!items || items.length === 0) {
-            renderItems(mockItems);
-        } else {
-            renderItems(items);
-        }
+        renderItems(items || []);
     } catch (e) {
-        console.log("API failed, using mock data");
-        renderItems(mockItems);
+        console.log("API failed");
+        renderItems([]);
     }
 };
 

@@ -243,13 +243,42 @@ document.getElementById("profileForm")?.addEventListener("submit", async (e) => 
     const file = document.getElementById("profilePicFile").files[0];
     if (file) finalPicUrl = await uploadToCloudinary(file);
 
-    const payload = { fullName: document.getElementById("editFullName").value, profilePictureUrl: finalPicUrl };
+    const payload = { fullName: document.getElementById("profileEditName").value, profilePictureUrl: finalPicUrl };
     try {
         const r = await fetch(`${API_BASE_URL}/api/auth/profile`, { method: "PUT", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` }, body: JSON.stringify(payload) });
         const d = await r.json();
         msg.textContent = d.message;
         if (r.ok) { studentName = d.fullName; localStorage.setItem("lf_name", d.fullName); updateAuthUi(); loadProfile(); }
     } catch (e) { msg.textContent = "Update failed."; }
+});
+
+document.getElementById("passwordForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById("securityMessage");
+    msg.textContent = "Updating...";
+
+    const payload = {
+        oldPassword: document.getElementById("oldPassword").value,
+        newPassword: document.getElementById("newPassword").value
+    };
+
+    try {
+        const r = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${authToken}`
+            },
+            body: JSON.stringify(payload)
+        });
+        const d = await r.json();
+        msg.textContent = d.message;
+        if (r.ok) {
+            document.getElementById("passwordForm").reset();
+        }
+    } catch (e) {
+        msg.textContent = "Update failed.";
+    }
 });
 
 // Navigation & Interactive
@@ -292,6 +321,12 @@ document.querySelectorAll("[data-scroll-target]").forEach(btn => {
 
 // Modals
 document.getElementById("forgotPasswordLink")?.addEventListener("click", (e) => { e.preventDefault(); switchView("forgot"); });
+document.getElementById("forgotPasswordBtnProfile")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeModal(profileModal);
+    openModal(authModal);
+    switchView("forgot");
+});
 document.getElementById("openProfileBtn")?.addEventListener("click", () => { openModal(profileModal); switchView("editProfile"); loadProfile(); });
 document.getElementById("closeProfileBtn")?.addEventListener("click", () => closeModal(profileModal));
 document.getElementById("closeProfileBackdrop")?.addEventListener("click", () => closeModal(profileModal));

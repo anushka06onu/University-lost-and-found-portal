@@ -28,7 +28,7 @@
             
             <nav class="nav-links" id="navLinks">
                 <a class="nav-link-anchor" href="/">Home</a>
-                <a class="nav-link-anchor" href="#records">Browse Records</a>
+                <a class="nav-link-anchor" href="#records" data-scroll-target="records">Browse Records</a>
                 <a class="nav-link-anchor" href="#faq">FAQ</a>
                 <a class="nav-link-anchor" href="/contact">Support</a>
             </nav>
@@ -62,10 +62,11 @@
                 <p>A secure platform for Daffodil International University students to report lost items and return found property within the campus community.</p>
                 <div class="hero-btns">
                     <button class="btn btn-primary" id="heroAccessBtn">Submit New Report</button>
-                    <button class="btn btn-secondary" onclick="document.getElementById('records').scrollIntoView({behavior:'smooth'})">Browse Records</button>
+                    <button type="button" class="btn btn-secondary" data-scroll-target="records">Browse Records</button>
                 </div>
                 <p id="studentStateText" style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-dim);">Connecting to campus database...</p>
             </div>
+        </section>
         <!-- About System Section -->
         <section class="container" id="about-system" style="margin-top: 4rem; margin-bottom: 4rem;">
             <div style="text-align: center; margin-bottom: 3rem;">
@@ -334,7 +335,7 @@
         </div>
     </div>
 
-    <div id="profileModal" class="modal">
+    <div id="profileModal" class="modal" style="display: flex !important; justify-content: center !important; align-items: center !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important;">
         <div class="modal-overlay" onclick="closeModal(document.getElementById('profileModal'))"></div>
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal(document.getElementById('profileModal'))">&times;</button>
@@ -351,31 +352,39 @@
             </div>
 
             <div class="filter-tabs" style="margin-bottom: 1.5rem;">
-                <button class="filter-tab active" id="btnProfilePhoto" style="flex: 1;">General</button>
-                <button class="filter-tab" id="btnProfileSecurity" style="flex: 1;">Security</button>
+                <button class="filter-tab active" id="showEditProfileTab" style="flex: 1;">General</button>
+                <button class="filter-tab" id="showSecurityTab" style="flex: 1;">Security</button>
             </div>
 
-            <div id="profilePhotoSection">
-                <form id="profileUpdateForm">
+            <div id="editProfileView">
+                <form id="profileForm">
                     <div class="form-group">
                         <label class="form-label">Display Name</label>
                         <input type="text" id="profileEditName" class="form-input">
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Profile Picture</label>
+                        <input type="file" id="profilePicFile" class="form-input" accept="image/*">
+                        <input type="hidden" id="editProfilePic">
+                    </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
+                    <p id="profileMessage" style="margin-top: 1rem; text-align: center; font-size: 0.85rem; color: var(--primary);"></p>
                 </form>
             </div>
 
-            <div id="profileSecuritySection" class="hidden">
+            <div id="securityView" class="hidden">
                 <form id="passwordForm">
                     <div class="form-group">
                         <label class="form-label">Old Password</label>
-                        <input type="password" id="oldPassword" class="form-input">
+                        <input type="password" id="oldPassword" class="form-input" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">New Password</label>
-                        <input type="password" id="newPassword" class="form-input">
+                        <input type="password" id="newPassword" class="form-input" required>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Update Password</button>
+                    <button type="button" class="btn btn-ghost" style="width: 100%; margin-top: 0.5rem;" id="forgotPasswordBtnProfile">Forgot Password?</button>
+                    <p id="securityMessage" style="margin-top: 1rem; text-align: center; font-size: 0.85rem; color: var(--primary);"></p>
                 </form>
             </div>
         </div>
@@ -384,6 +393,6 @@
 
 
     <script src="config.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
 </body>
 </html>

@@ -75,21 +75,47 @@ function switchView(view) {
     });
 };
 
+const updateProfileDisplay = (user) => {
+    isAdmin = user.isAdmin;
+    localStorage.setItem("lf_isAdmin", isAdmin ? "true" : "false");
+    
+    const profileName = document.getElementById("profileName");
+    if (profileName) profileName.textContent = user.fullName + (isAdmin ? " (Admin)" : "");
+    
+    const profileEmailDisplay = document.getElementById("profileEmailDisplay");
+    if (profileEmailDisplay) profileEmailDisplay.textContent = user.email;
+    
+    const profilePreview = document.getElementById("profilePreview");
+    if (profilePreview) profilePreview.src = user.profilePictureUrl || "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
+    
+    const profileEditName = document.getElementById("profileEditName");
+    if (profileEditName) profileEditName.value = user.fullName;
+    
+    const editProfilePic = document.getElementById("editProfilePic");
+    if (editProfilePic) editProfilePic.value = user.profilePictureUrl || "";
+    
+    updateAuthUi();
+};
+
 const loadProfile = async () => {
     if (!authToken) return;
+    
+    if (authToken === "demo_token") {
+        const user = {
+            fullName: studentName || "Test User",
+            email: studentEmail || "test@example.com",
+            isAdmin: isAdmin,
+            profilePictureUrl: ""
+        };
+        updateProfileDisplay(user);
+        return;
+    }
+    
     try {
         const r = await fetch(`${API_BASE_URL}/api/auth/profile`, { headers: { "Authorization": `Bearer ${authToken}` } });
         const user = await r.json();
-        isAdmin = user.isAdmin;
-        localStorage.setItem("lf_isAdmin", isAdmin ? "true" : "false");
-        
-        document.getElementById("profileName").textContent = user.fullName + (isAdmin ? " (Admin)" : "");
-        document.getElementById("profileEmailDisplay").textContent = user.email;
-        document.getElementById("profilePreview").src = user.profilePictureUrl || "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg";
-        document.getElementById("editFullName").value = user.fullName;
-        document.getElementById("editProfilePic").value = user.profilePictureUrl || "";
-        updateAuthUi();
-    } catch (e) { console.error("Profile load failed"); }
+        updateProfileDisplay(user);
+    } catch (e) { console.error("Profile load failed", e); }
 };
 
 // Items & Grid
@@ -112,8 +138,9 @@ const loadItems = async (type) => {
         
         renderItems(items || []);
     } catch (e) {
-        console.log("API failed");
-        renderItems([]);
+        console.log("API failed, using mock data");
+        const filteredMock = type ? mockItems.filter(item => item.type === type) : mockItems;
+        renderItems(filteredMock);
     }
 };
 
@@ -179,7 +206,7 @@ window.getItemById = async (id) => {
                          <span><strong>Location:</strong> ${escapeHtml(item.location)}</span>
                          <span><strong>Contact:</strong> ${escapeHtml(item.contactInfo || "N/A")}</span>
                     </div>
-                    <button class="nav-btn ghost" style="margin-top:1.5rem;" onclick="document.getElementById('detailCard').classList.add('hidden')">Close Details</button>
+                    <button class="btn btn-secondary" style="margin-top:1.5rem;" onclick="closeModal(document.getElementById('detailModal'))">Close Details</button>
                 </div>
             </div>
         `;
@@ -281,13 +308,42 @@ document.getElementById("profileForm")?.addEventListener("submit", async (e) => 
     const file = document.getElementById("profilePicFile").files[0];
     if (file) finalPicUrl = await uploadToCloudinary(file);
 
-    const payload = { fullName: document.getElementById("editFullName").value, profilePictureUrl: finalPicUrl };
+    const payload = { fullName: document.getElementById("profileEditName").value, profilePictureUrl: finalPicUrl };
     try {
         const r = await fetch(`${API_BASE_URL}/api/auth/profile`, { method: "PUT", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` }, body: JSON.stringify(payload) });
         const d = await r.json();
         msg.textContent = d.message;
         if (r.ok) { studentName = d.fullName; localStorage.setItem("lf_name", d.fullName); updateAuthUi(); loadProfile(); }
     } catch (e) { msg.textContent = "Update failed."; }
+});
+
+document.getElementById("passwordForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById("securityMessage");
+    msg.textContent = "Updating...";
+
+    const payload = {
+        oldPassword: document.getElementById("oldPassword").value,
+        newPassword: document.getElementById("newPassword").value
+    };
+
+    try {
+        const r = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${authToken}`
+            },
+            body: JSON.stringify(payload)
+        });
+        const d = await r.json();
+        msg.textContent = d.message;
+        if (r.ok) {
+            document.getElementById("passwordForm").reset();
+        }
+    } catch (e) {
+        msg.textContent = "Update failed.";
+    }
 });
 
 // Navigation & Interactive
@@ -311,10 +367,10 @@ document.getElementById("themeToggleBtn")?.addEventListener("click", () => {
     refreshIcons();
 });
 
-document.querySelectorAll(".filter-tab").forEach(btn => {
+document.querySelectorAll(".filter-tab[data-type]").forEach(btn => {
     btn.addEventListener("click", () => {
         currentFilter = btn.dataset.type;
-        document.querySelectorAll(".filter-tab").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".filter-tab[data-type]").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         activeFilter.textContent = currentFilter ? currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1) : "All";
         loadItems(currentFilter);
@@ -322,7 +378,8 @@ document.querySelectorAll(".filter-tab").forEach(btn => {
 });
 
 document.querySelectorAll("[data-scroll-target]").forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
+        e.preventDefault();
         document.getElementById(btn.dataset.scrollTarget)?.scrollIntoView({ behavior: "smooth" });
         navLinks?.classList.remove("active");
     });
@@ -330,7 +387,20 @@ document.querySelectorAll("[data-scroll-target]").forEach(btn => {
 
 // Modals
 document.getElementById("forgotPasswordLink")?.addEventListener("click", (e) => { e.preventDefault(); switchView("forgot"); });
-document.getElementById("openProfileBtn")?.addEventListener("click", () => { openModal(profileModal); switchView("editProfile"); loadProfile(); });
+document.getElementById("forgotPasswordBtnProfile")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeModal(profileModal);
+    openModal(authModal);
+    switchView("forgot");
+});
+document.getElementById("openProfileBtn")?.addEventListener("click", () => {
+    const modal = document.getElementById("profileModal");
+    if (modal) {
+        modal.classList.add("active");
+        switchView("editProfile");
+        loadProfile();
+    }
+});
 document.getElementById("closeProfileBtn")?.addEventListener("click", () => closeModal(profileModal));
 document.getElementById("closeProfileBackdrop")?.addEventListener("click", () => closeModal(profileModal));
 document.getElementById("showEditProfileTab")?.addEventListener("click", () => switchView("editProfile"));
@@ -364,6 +434,15 @@ document.getElementById("showVerifyTab")?.addEventListener("click", () => switch
 document.getElementById("logoutBtn")?.addEventListener("click", () => { authToken = ""; localStorage.clear(); updateAuthUi(); loadItems(""); closeModal(profileModal); });
 document.getElementById("refreshBtn")?.addEventListener("click", () => loadItems(currentFilter));
 document.getElementById("sortOrder")?.addEventListener("change", (e) => { currentSort = e.target.value; loadItems(currentFilter); });
+
+document.getElementById("searchInput")?.addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase();
+    document.querySelectorAll("#itemsContainer .card").forEach(card => {
+        const title = card.querySelector(".card-title").textContent.toLowerCase();
+        const desc = card.querySelector(".card-text").textContent.toLowerCase();
+        card.classList.toggle("hidden", !title.includes(query) && !desc.includes(query));
+    });
+});
 
 document.getElementById("registerForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();

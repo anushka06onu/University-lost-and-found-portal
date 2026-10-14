@@ -18,8 +18,10 @@ public class Item {
     private String description;
     private String type;
     private String location;
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     private String contactInfo;
     private String imageUrl;
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private String postedBy;
     private LocalDateTime createdAt;
 
@@ -103,3 +105,4 @@ public class Item {
         this.createdAt = LocalDateTime.now();
     }
 }
+

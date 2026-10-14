@@ -14,12 +14,25 @@ public class StudentUser {
     private Long id;
 
     private String fullName;
+    @jakarta.persistence.Column(unique = true)
     private String email;
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private String password;
     private boolean verified;
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private String otpCode;
     private LocalDateTime otpExpiry;
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private String sessionToken;
+    private LocalDateTime sessionExpiry;
+    private String otpPurpose;
+    private int otpAttempts;
+    public LocalDateTime getSessionExpiry() { return sessionExpiry; }
+    public void setSessionExpiry(LocalDateTime value) { sessionExpiry = value; }
+    public String getOtpPurpose() { return otpPurpose; }
+    public void setOtpPurpose(String value) { otpPurpose = value; }
+    public int getOtpAttempts() { return otpAttempts; }
+    public void setOtpAttempts(int value) { otpAttempts = value; }
     private String profilePictureUrl;
     private boolean isAdmin;
 
@@ -106,3 +119,4 @@ public class StudentUser {
         isAdmin = admin;
     }
 }
+

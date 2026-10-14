@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface StudentUserRepository extends JpaRepository<StudentUser, Long> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     Optional<StudentUser> findByEmail(String email);
     Optional<StudentUser> findBySessionToken(String sessionToken);
 }
+

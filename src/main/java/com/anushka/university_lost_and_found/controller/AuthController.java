@@ -20,6 +20,11 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @PostMapping("/logout")
+    public Map<String, String> logout(@org.springframework.web.bind.annotation.RequestHeader("Authorization") String header) {
+        return authService.logout(header);
+    }
+
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request) {
         try {
@@ -108,3 +113,4 @@ public class AuthController {
         }
     }
 }
+

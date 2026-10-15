@@ -24,7 +24,7 @@ let currentTheme = localStorage.getItem("lf_theme") || "dark";
 
 // Helpers
 const refreshIcons = () => { if (window.lucide) window.lucide.createIcons(); };
-const escapeHtml = (v) => String(v).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 const formatDate = (v) => { if (!v) return "N/A"; const d = new Date(v); return isNaN(d) ? v : d.toLocaleDateString(); };
 const openModal = (modal) => { if (modal) modal.classList.add("active"); };
 const closeModal = (modal) => { if (modal) modal.classList.remove("active"); };
@@ -42,14 +42,20 @@ window.togglePassword = (id) => {
     }
 };
 
-const uploadToCloudinary = async (file) => {
-    console.log("Simulating upload for:", file.name);
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(`https://picsum.photos/500/500?random=${Math.floor(Math.random() * 1000)}`);
-        }, 500);
-    });
+const apiFetch = async (url, options = {}) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        const body = await response.text();
+        return new Response(response.status === 204 ? null : body, { status: response.status, headers: response.headers });
+    } finally { clearTimeout(timer); }
 };
+const clearSession = () => {
+    authToken = ""; studentEmail = ""; studentName = ""; isAdmin = false;
+    ["lf_token", "lf_email", "lf_name", "lf_isAdmin"].forEach(key => localStorage.removeItem(key));
+};
+if (authToken === "demo_token") clearSession();
 
 // Auth & Profile Logic
 const updateAuthUi = () => {
@@ -100,19 +106,9 @@ const updateProfileDisplay = (user) => {
 const loadProfile = async () => {
     if (!authToken) return;
     
-    if (authToken === "demo_token") {
-        const user = {
-            fullName: studentName || "Test User",
-            email: studentEmail || "test@example.com",
-            isAdmin: isAdmin,
-            profilePictureUrl: ""
-        };
-        updateProfileDisplay(user);
-        return;
-    }
-    
     try {
-        const r = await fetch(`${API_BASE_URL}/api/auth/profile`, { headers: { "Authorization": `Bearer ${authToken}` } });
+        const r = await apiFetch(`${API_BASE_URL}/api/auth/profile`, { headers: { "Authorization": `Bearer ${authToken}` } });
+        if (!r.ok) { if (r.status === 401) { clearSession(); updateAuthUi(); } throw new Error("Profile unavailable"); }
         const user = await r.json();
         updateProfileDisplay(user);
     } catch (e) { console.error("Profile load failed", e); }
@@ -126,21 +122,18 @@ const loadItems = async (type) => {
     let url = `${API_BASE_URL}/api/items`;
     if (type) url += `?type=${encodeURIComponent(type)}`;
 
-    const mockItems = [
-        { id: 1, title: "iPhone 13 Pro", type: "lost", description: "Lost near Knowledge Tower. Space Gray color.", location: "Knowledge Tower", postedBy: "admin@diu.edu.bd", createdAt: new Date().toISOString(), imageUrl: "https://images.unsplash.com/photo-1632624748997-651469e69123?w=500" },
-        { id: 2, title: "DIU Student ID Card", type: "found", description: "Found in the central library. Name: John Doe.", location: "Library", postedBy: "security@diu.edu.bd", createdAt: new Date().toISOString(), imageUrl: "" },
-        { id: 3, title: "Dell Laptop Charger", type: "lost", description: "Left in Lab 4B on the 4th floor.", location: "Lab 4B", postedBy: "student@diu.edu.bd", createdAt: new Date().toISOString(), imageUrl: "" }
-    ];
-
     try {
-        const response = await fetch(url);
+        const response = await apiFetch(url);
+        if (!response.ok) throw new Error("Database unavailable");
         const items = await response.json();
+        if (!Array.isArray(items)) throw new Error("Invalid response");
         
         renderItems(items || []);
     } catch (e) {
-        console.log("API failed, using mock data");
-        const filteredMock = type ? mockItems.filter(item => item.type === type) : mockItems;
-        renderItems(filteredMock);
+        itemCount.textContent = "—";
+        document.getElementById("skeletonLoader")?.classList.add("hidden");
+        itemsContainer.classList.remove("hidden");
+        itemsContainer.innerHTML = '<p role="alert" style="grid-column:1/-1;padding:2rem">Records are unavailable. Check your connection and try Refresh.</p>';
     }
 };
 
@@ -172,7 +165,7 @@ const renderItems = (items) => {
                 <div class="card-meta">
                     <div><i data-lucide="map-pin" style="width:14px; height:14px;"></i> ${escapeHtml(item.location)}</div>
                     <div><i data-lucide="calendar" style="width:14px; height:14px;"></i> ${formatDate(item.createdAt)}</div>
-                    <div><i data-lucide="user" style="width:14px; height:14px;"></i> ${escapeHtml(item.postedBy)}</div>
+                    
                 </div>
             </div>
             <div class="card-footer">
@@ -191,7 +184,8 @@ window.getItemById = async (id) => {
     detailCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     try {
-        const r = await fetch(`${API_BASE_URL}/api/items/${id}`);
+        const r = await apiFetch(`${API_BASE_URL}/api/items/${id}`, { headers: { Authorization: `Bearer ${authToken}` } });
+        if (!r.ok) throw new Error("Details unavailable");
         const item = await r.json();
         detailCard.innerHTML = `
             <div style="display:flex; gap:2rem; align-items:center; flex-wrap:wrap">
@@ -204,7 +198,7 @@ window.getItemById = async (id) => {
                     <p style="margin:1rem 0; font-size:1.1rem;">${escapeHtml(item.description)}</p>
                     <div class="meta" style="border:none; padding:0; flex-direction:row; gap:2rem;">
                          <span><strong>Location:</strong> ${escapeHtml(item.location)}</span>
-                         <span><strong>Contact:</strong> ${escapeHtml(item.contactInfo || "N/A")}</span>
+                         <span><strong>Contact:</strong> ${escapeHtml(item.contactInfo || "Available only to the report author or administrator")}</span>
                     </div>
                     <button class="btn btn-secondary" style="margin-top:1.5rem;" onclick="closeModal(document.getElementById('detailModal'))">Close Details</button>
                 </div>
@@ -216,7 +210,7 @@ window.getItemById = async (id) => {
 window.deleteItem = async (id) => {
     if (!confirm("Delete this record permanently?")) return;
     try {
-        const r = await fetch(`${API_BASE_URL}/api/items/${id}`, { 
+        const r = await apiFetch(`${API_BASE_URL}/api/items/${id}`, { 
             method: "DELETE", 
             headers: { "Authorization": `Bearer ${authToken}` } 
         });
@@ -230,28 +224,17 @@ document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const p = { email: document.getElementById("loginEmail").value, password: document.getElementById("loginPassword").value };
     
-    // Demo credentials check
-    if (p.email === "test@example.com" && p.password === "password123") {
-        authToken = "demo_token"; studentEmail = p.email; studentName = "Test User"; isAdmin = true;
-        localStorage.setItem("lf_token", "demo_token"); localStorage.setItem("lf_email", p.email); localStorage.setItem("lf_name", "Test User"); localStorage.setItem("lf_isAdmin", "true");
-        closeModal(authModal); updateAuthUi(); loadItems("");
-        return;
-    }
-
     try {
-        const r = await fetch(`${API_BASE_URL}/api/auth/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
+        const r = await apiFetch(`${API_BASE_URL}/api/auth/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
         const d = await r.json();
-        if (d.token) { 
+        if (r.ok && d.token) { 
             authToken = d.token; studentEmail = d.email; studentName = d.fullName; isAdmin = !!d.isAdmin;
             localStorage.setItem("lf_token", d.token); localStorage.setItem("lf_email", d.email); localStorage.setItem("lf_name", d.fullName); localStorage.setItem("lf_isAdmin", isAdmin ? "true" : "false");
             closeModal(authModal); updateAuthUi(); loadItems("");
         }
         else document.getElementById("loginMessage").textContent = d.message;
     } catch (e) {
-        console.log("API failed, using fallback login");
-        authToken = "demo_token"; studentEmail = p.email; studentName = "Fallback User"; isAdmin = false;
-        localStorage.setItem("lf_token", "demo_token"); localStorage.setItem("lf_email", p.email); localStorage.setItem("lf_name", "Fallback User"); localStorage.setItem("lf_isAdmin", "false");
-        closeModal(authModal); updateAuthUi(); loadItems("");
+        document.getElementById("loginMessage").textContent = "Sign-in unavailable. No session was created. Try again later.";
     }
 });
 
@@ -261,9 +244,10 @@ document.getElementById("forgotForm")?.addEventListener("submit", async (e) => {
     const msg = document.getElementById("forgotMessage");
     msg.textContent = "Sending OTP...";
     try {
-        const r = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+        const r = await apiFetch(`${API_BASE_URL}/api/auth/forgot-password`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
         const d = await r.json();
-        msg.innerHTML = `${d.message}<br><strong>OTP: ${d.devOtp || ""}</strong>`;
+        msg.textContent = d.message || "Request failed.";
+        if (!r.ok) return;
         document.getElementById("resetEmailField").value = email;
         setTimeout(() => switchView("reset"), 2000);
     } catch (e) { msg.textContent = "Request failed."; }
@@ -275,7 +259,7 @@ document.getElementById("resetForm")?.addEventListener("submit", async (e) => {
     const msg = document.getElementById("resetMessage");
     msg.textContent = "Resetting...";
     try {
-        const r = await fetch(`${API_BASE_URL}/api/auth/reset-password`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
+        const r = await apiFetch(`${API_BASE_URL}/api/auth/reset-password`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
         const d = await r.json();
         msg.textContent = d.message;
         if (r.ok) setTimeout(() => switchView("login"), 1500);
@@ -289,11 +273,11 @@ document.getElementById("itemForm")?.addEventListener("submit", async (e) => {
 
     let finalImageUrl = document.getElementById("imageUrl").value;
     const file = document.getElementById("itemImageFile").files[0];
-    if (file) finalImageUrl = await uploadToCloudinary(file);
+    if (file) { msg.textContent = "File upload is not configured. Use a hosted Cloudinary image URL or submit without an image."; return; }
 
     const item = { title: document.getElementById("title").value, type: document.getElementById("type").value, description: document.getElementById("description").value, location: document.getElementById("location").value, contactInfo: document.getElementById("contactInfo").value, imageUrl: finalImageUrl };
     try {
-        const r = await fetch(`${API_BASE_URL}/api/items`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` }, body: JSON.stringify(item) });
+        const r = await apiFetch(`${API_BASE_URL}/api/items`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` }, body: JSON.stringify(item) });
         if (r.ok) { closeModal(postModal); document.getElementById("itemForm").reset(); loadItems(currentFilter); }
         else msg.textContent = "Error publishing.";
     } catch (e) { msg.textContent = "Error publishing."; }
@@ -306,11 +290,11 @@ document.getElementById("profileForm")?.addEventListener("submit", async (e) => 
 
     let finalPicUrl = document.getElementById("editProfilePic").value;
     const file = document.getElementById("profilePicFile").files[0];
-    if (file) finalPicUrl = await uploadToCloudinary(file);
+    if (file) { msg.textContent = "File upload is not configured. Use a hosted image URL instead."; return; }
 
     const payload = { fullName: document.getElementById("profileEditName").value, profilePictureUrl: finalPicUrl };
     try {
-        const r = await fetch(`${API_BASE_URL}/api/auth/profile`, { method: "PUT", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` }, body: JSON.stringify(payload) });
+        const r = await apiFetch(`${API_BASE_URL}/api/auth/profile`, { method: "PUT", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` }, body: JSON.stringify(payload) });
         const d = await r.json();
         msg.textContent = d.message;
         if (r.ok) { studentName = d.fullName; localStorage.setItem("lf_name", d.fullName); updateAuthUi(); loadProfile(); }
@@ -328,7 +312,7 @@ document.getElementById("passwordForm")?.addEventListener("submit", async (e) =>
     };
 
     try {
-        const r = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+        const r = await apiFetch(`${API_BASE_URL}/api/auth/change-password`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -340,6 +324,7 @@ document.getElementById("passwordForm")?.addEventListener("submit", async (e) =>
         msg.textContent = d.message;
         if (r.ok) {
             document.getElementById("passwordForm").reset();
+            clearSession(); updateAuthUi(); msg.textContent = "Password changed. Sign in again.";
         }
     } catch (e) {
         msg.textContent = "Update failed.";
@@ -431,7 +416,7 @@ document.getElementById("closePostBackdrop")?.addEventListener("click", () => cl
 document.getElementById("showLoginTab")?.addEventListener("click", () => switchView("login"));
 document.getElementById("showRegisterTab")?.addEventListener("click", () => switchView("register"));
 document.getElementById("showVerifyTab")?.addEventListener("click", () => switchView("verify"));
-document.getElementById("logoutBtn")?.addEventListener("click", () => { authToken = ""; localStorage.clear(); updateAuthUi(); loadItems(""); closeModal(profileModal); });
+document.getElementById("logoutBtn")?.addEventListener("click", async () => { try { await apiFetch(`${API_BASE_URL}/api/auth/logout`, { method: "POST", headers: { Authorization: `Bearer ${authToken}` } }); } catch {} clearSession(); updateAuthUi(); loadItems(""); closeModal(profileModal); });
 document.getElementById("refreshBtn")?.addEventListener("click", () => loadItems(currentFilter));
 document.getElementById("sortOrder")?.addEventListener("change", (e) => { currentSort = e.target.value; loadItems(currentFilter); });
 
@@ -448,9 +433,10 @@ document.getElementById("registerForm")?.addEventListener("submit", async (e) =>
     e.preventDefault();
     const p = { fullName: document.getElementById("registerName").value, email: document.getElementById("registerEmail").value, password: document.getElementById("registerPassword").value };
     try {
-        const r = await fetch(`${API_BASE_URL}/api/auth/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
+        const r = await apiFetch(`${API_BASE_URL}/api/auth/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
         const d = await r.json();
-        document.getElementById("registerMessage").innerHTML = `${d.message}<br><strong>OTP: ${d.devOtp || ""}</strong>`;
+        document.getElementById("registerMessage").textContent = d.message || "Registration failed.";
+        if (!r.ok) return;
         document.getElementById("verifyEmail").value = p.email;
         setTimeout(() => switchView("verify"), 2000);
     } catch (e) { document.getElementById("registerMessage").textContent = "Register failed."; }
@@ -460,15 +446,8 @@ document.getElementById("verifyForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const p = { email: document.getElementById("verifyEmail").value, otp: document.getElementById("verifyOtp").value };
     
-    // Demo OTP check
-    if (p.otp === "123456") {
-        document.getElementById("verifyMessage").textContent = "Verification completed!";
-        setTimeout(() => switchView("login"), 1500);
-        return;
-    }
-
     try {
-        const r = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
+        const r = await apiFetch(`${API_BASE_URL}/api/auth/verify-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
         const d = await r.json();
         document.getElementById("verifyMessage").textContent = d.message;
         if (d.message?.includes("completed")) setTimeout(() => switchView("login"), 1500);
@@ -488,3 +467,4 @@ document.body.setAttribute("data-theme", currentTheme);
 updateAuthUi();
 loadItems("");
 if (authToken) loadProfile();
+

@@ -37,6 +37,12 @@ public class ItemController {
             if (item.getImageUrl() != null && !item.getImageUrl().isBlank() && !isCloudinaryUrl(item.getImageUrl())) {
                 return ResponseEntity.badRequest().body("Use a valid Cloudinary image link.");
             }
+            if (item.getTitle() == null || item.getTitle().isBlank() || item.getTitle().length() > 200
+                    || !("lost".equals(item.getType()) || "found".equals(item.getType()))) {
+                return ResponseEntity.badRequest().body("Enter a title and choose lost or found.");
+            }
+            item.setId(null);
+            item.setCreatedAt(null);
             item.setPostedBy(user.getEmail());
             if (item.getContactInfo() == null || item.getContactInfo().isBlank()) {
                 item.setContactInfo(user.getEmail());
@@ -56,9 +62,23 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Item> getItemById(@PathVariable Long id) {
-        Optional<Item> item = itemService.getItemById(id);
-        return item.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> getItemById(@PathVariable Long id,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Optional<Item> found = itemService.getItemById(id);
+        if (found.isEmpty()) return ResponseEntity.notFound().build();
+        Item item = found.get();
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("id", item.getId()); result.put("title", item.getTitle());
+        result.put("description", item.getDescription()); result.put("type", item.getType());
+        result.put("location", item.getLocation()); result.put("imageUrl", item.getImageUrl());
+        result.put("createdAt", item.getCreatedAt());
+        if (authorization != null) {
+            try {
+                StudentUser user = authService.getUserFromToken(authorization);
+                if (user.isAdmin() || user.getEmail().equals(item.getPostedBy())) result.put("contactInfo", item.getContactInfo());
+            } catch (RuntimeException e) { return ResponseEntity.status(401).body(java.util.Map.of("message", "Sign in again.")); }
+        }
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{id}")
@@ -83,9 +103,10 @@ public class ItemController {
     }
 
     private boolean isCloudinaryUrl(String url) {
-        String value = url.toLowerCase();
-        return value.startsWith("http://") || value.startsWith("https://")
-            ? value.contains("cloudinary.com")
-            : false;
+        try {
+            java.net.URI value = java.net.URI.create(url);
+            return "https".equalsIgnoreCase(value.getScheme()) && "res.cloudinary.com".equalsIgnoreCase(value.getHost());
+        } catch (IllegalArgumentException e) { return false; }
     }
 }
+
